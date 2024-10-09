@@ -23,7 +23,7 @@ let msgParity = 0; // just for differentiating messages
 let whosPlaying = [-1,-1]; 
 let hasWinner = false;
 let coin = 0;
-const wh = 3;
+const wh = 6;
 const colors = ["teal", "rgb(189 8 189)"];
 let gameTable = [];
 for (let i = 0; i < wh; i++) {
@@ -34,7 +34,23 @@ for (let i = 0; i < wh; i++) {
     gameTable.push(a);
 }
 
-function b2n(b) {return (b) ? 1 : 0;} // turns boolean into number because js is annoying like that
+/**
+ * Creates and returns a new array for the game
+ * 
+ * @param {Number} size: Width*Height (both equal) size of the table
+ * @returns {Number[][]} 2D array of the table containing just -1
+ */
+function newGameTable(size) {
+    let newTable = [];
+    for (let i = 0; i < size; i++) {
+        let arr = new Array(size);
+        arr.fill(-1);
+        newTable.push(arr);
+    }
+    return newTable;
+}
+
+// converts x and y coordinates into y*d + x (with d the length of a line)
 function pos2n(x,y,d) {return y*d + x;}
 
 /**
@@ -43,10 +59,10 @@ function pos2n(x,y,d) {return y*d + x;}
  * we do not return that relative position.
  * We only return relative positions that when applied to `pos`, don't cause an index error in an `arr[dims][dims]` array.
  * 
- * @param pos: 1D int Array | current (y,x) index
- * @param relativePositions: 2D int array | contains relative position values for `pos`
- * @param dims: int | 1:1 dimentions for the array `pos` is in 
- * @returns 2D int array | filtered to only include valid relative indexes
+ * @param {Number[]} pos: current (y,x) index
+ * @param {Number[][]} relativePositions: contains relative position values for `pos`
+ * @param {Number} dims: 1:1 dimensions for the array `pos` is in 
+ * @returns {Number[][]} filtered to only include valid relative indexes
  */
 function filterIndexErr(pos, relativePositions, dims) {
 	let [ y, x ] = pos;
@@ -69,12 +85,12 @@ function filterIndexErr(pos, relativePositions, dims) {
  * placed as the root. Then traverse all tiles of their color to see if
  * they have linked both edges.
  *
- * @param arr: 2D int Array | contains the state of the current playing field. value -1: nothing played here, otherwise playernumber
- * @param dims: int | since arr is of size arr[dims][dims], we only need 1 value for it 
- * @param root: 1D int Array | (y,x) position of the tile placed by player in arr
- * @param player: int | player number of who just played on the root tile
+ * @param {Number[][]} arr: contains the state of the current playing field. value -1: nothing played here, otherwise playernumber
+ * @param {Number} dims: since arr is of size arr[dims][dims], we only need 1 value for it 
+ * @param {Number[]} root: (y,x) position of the tile placed by player in arr
+ * @param {Number} player: player number of who just played on the root tile
  *
- * @returns boolean of if the root makes a connections between the two edges of hte grid
+ * @returns {Boolean} if the root makes a connections between two opposite of the grid (vertical or horizontal, depending on player)
 */
 function dfs(arr, dims, root, player) {
 	let toParse = [];
@@ -92,7 +108,7 @@ function dfs(arr, dims, root, player) {
 		let node = toParse.pop();
         // filter out relative indexes that would cause errors
 		let relativeTPosBis = filterIndexErr(node, relativeTPos, dims);
-		if (relativeTPosBis.length > 0) {
+		if (relativeTPosBis.length > 0) { // if adjacent nodes
 			
 			for (let [i, j] of relativeTPosBis) {
                 // apply relative indexes to current position
@@ -108,7 +124,8 @@ function dfs(arr, dims, root, player) {
 		}
 	}
     let side1, side2;
-    if (player == 0) { // win conditino for player 0 (top and bottom)
+    // * player will always be either 0 or 1
+    if (player == 0) { // win condition for player 0 (top and bottom)
         side1 = seen.some((e) => {return Math.floor(e/dims) == 0;});
         side2 = seen.some((e) => {return Math.floor(e/dims) == dims-1;});
     } else if (player == 1) { // win condition for player 1 (left and right)
@@ -126,7 +143,7 @@ io.on('connection', (socket) => {
         socket.emit("createTable", wh);
 
         // loads the table for them if they are spectating and there is already a game
-        if (coin > 0) { // if someone has played already. Otherwise there's no use.
+        if (coin > 0) { // only does it if there is already a game in session
             socket.emit("loadGameTable", 
                 {"table":gameTable, "colors":colors});
         }
@@ -186,7 +203,6 @@ io.on('connection', (socket) => {
                         if (dfs(gameTable, wh, [yT, xT], coin%2)) {
                             hasWinner = true;
                         } else {
-                            // TODO check draw: if no -1 left in gameTable
                             coin++;
                         }
                     }
@@ -207,11 +223,8 @@ io.on('connection', (socket) => {
         hasWinner = false;
         coin = 0;
 
-        for (i in gameTable) {
-            for (j in gameTable[i]) {
-                gameTable[i][j] = -1;
-            }
-        }
+        gameTable = newGameTable(wh);
+
         // resets everyone's tables to be empty according to the server side gameTable
         // TODO this also removes the "x IS THE WINNER" message client side (which should be done elsewhere really)
         io.emit("loadGameTable", 
