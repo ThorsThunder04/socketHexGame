@@ -5,7 +5,7 @@ const { relative } = require('path');
 const server = http.createServer(app);
 const io = new require("socket.io")(server);
 server.listen(8888, () => {console.log('Le serveur écoute sur le port 8888');});
-
+// geko
 app.get('/', (request, response) => {
     response.sendFile('client_socket.io.html', {root: __dirname});
 });
