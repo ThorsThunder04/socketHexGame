@@ -10,11 +10,8 @@ app.get('/', (request, response) => {
     response.sendFile('client_socket.io.html', {root: __dirname});
 });
 
-app.get("/clientScript", (_, response) => {
-    response.sendFile('clientScript.js', {root: __dirname});
-});
-app.get("/hexagoneScript", (_, response) => {
-    response.sendFile('hexagoneScript.js', {root: __dirname});
+app.get("file/:file", (req,res) => {
+    res.sendFile(req.params.file, {root: __dirname});
 });
 
 let joinedUsers = [];
@@ -51,7 +48,7 @@ function pos2n(x,y,d) {return y*d + x;}
 function filterIndexErr(pos, relativePositions, dims) {
 	let [ y, x ] = pos;
 	let newArr = [];
-	for (rPos of relativePositions) {
+	for (let rPos of relativePositions) {
 		let [ ny, nx ] = rPos;
 
 		if (((y+ny) >= 0) && ((y+ny) < dims) &&
@@ -122,7 +119,7 @@ function dfs(arr, dims, root, player) {
 io.on('connection', (socket) => {
     socket.on('initialLoad', data => {
         console.log("Message reçu du client :", data);
-        socket.emit('currentPlayers', joinedUsers);
+        socket.emit("currentPlayers", joinedUsers);
         socket.emit("createTable", wh);
 
         // loads the table for them if they are spectating and there is already a game
@@ -161,7 +158,7 @@ io.on('connection', (socket) => {
             let formattedMessage = " " + joinedUsers[data["player"]] + ": " + data["text"];
             formattedMessage = ((msgParity%2) ? "%%%" : "###") + formattedMessage; // kinda useless
             msgParity++;
-            io.emit("messageReception", formattedMessage);
+            io.emit("newMessage", formattedMessage);
         }
     });
 

@@ -1,6 +1,6 @@
 
 let socket = io();
-let nbPlayer;
+let playerNb;
 let nick;
 
 let joinButton = document.getElementById("join");
@@ -23,7 +23,7 @@ function leave() {
     joinButton.removeAttribute("disabled");
     playerList.innerHTML = "";
     sendMes.setAttribute("disabled", "disabled");
-    socket.emit("leave", nbPlayer);
+    socket.emit("leave", playerNb);
 }
 
 function send() {
@@ -32,9 +32,7 @@ function send() {
     socket.emit("sendMessage", message);
 }
 
-socket.on("playerList", data => {
-    console.log(data.playerNb);
-    nbPlayer = data.playerNb;
+socket.on("currentPlayers", data => {
     playerList.innerHTML = "";
     console.log(data.listPlayers);
     for (let c in data.listPlayers) {
@@ -42,17 +40,20 @@ socket.on("playerList", data => {
     }
 })
 
-socket.on("denied", data => {
+socket.on("joinSuccess", data => {
+    playerNb = parseInt(data);
+    console.log("playerNb: " + playerNb);
+});
+
+socket.on("joinFailed", data => {
     console.log(data);
 });
 
-socket.on("leaving", data => {
-    let nbL = parseInt(data.nbL);
-    playerList.innerHTML = "";
-    for (let c in data.cList) playerList.innerHTML += data.cList[c];
-    if (nbPlayer > nbL) {
-        nbPlayer--;
-        console.log("new player number: " + nbPlayer);
+socket.on("playerLeave", data => {
+    let nbL = parseInt(data);
+    if (playerNb > nbL) {
+        playerNb--;
+        console.log("new player number: " + playerNb);
     }
 });
 
@@ -60,12 +61,28 @@ socket.on("newPlayer", data => {
     playerList.innerHTML += data.name;
 });
 
+socket.on("loadGameTable", data => {
+    let {table, colors} = data;
+    for (let y of table) {
+        for (let x of table) {
+            if (table[y][x] != -1) {
+                d3.select("#h" + (y*table.length + x)).attr("fill", colors[table[y][x]]);
+            }
+        }
+    }
+});
+
 socket.on("newMessage", data => {
     chat.value += ( data + "\n");
 });
 
-socket.on("newTile", data => {
-    document.getElementById("R" + data.hexId).setAttribute("fill", data.color);
+socket.on("justPlayed", data => {
+    d3.select("#h"+data.tile).attr("fill", data.color);
+});
+
+//implement
+socket.on("winner", data => {
+    console.log(data);
 });
 
 leaveButton.setAttribute("disabled",  "disabled");
