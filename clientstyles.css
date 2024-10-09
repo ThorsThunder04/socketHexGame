@@ -1,0 +1,13 @@
+#field {
+    float: left;
+    top: 20px;
+    position: relative;
+}
+
+#chatbox {
+    position: absolute;
+    top: 30px;
+    right: 20px;
+    z-index: 100;
+    float: right;
+}

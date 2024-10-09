@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fr">
+   <head>
+      <script src="/socket.io/socket.io.js"></script>
+      <script src="file/scriptClient.js" defer></script>
+      <script src="file/hexagones_squelette.js" defer></script>
+      <script src="https://d3js.org/d3.v7.min.js"></script>
+      <link rel="stylesheet" type="text/css" href="file/clientstyles.css">
+   </head>
+   <body>
+      <input type="text" id="name">
+      <button id="join" onclick="join()">join party!</button>
+      <button id="leave" onclick="leave()">leave :(</button>
+      <div id="playerList"></div>
+      <div id="field"></div>
+      <div id="chatbox">
+         <input type="text" id="inputMes">
+         <button id="sendMes" onclick="send()">send message !</button>
+         <div>
+            <textarea id="chat" rows="30" cols="40"></textarea>
+         </div>
+      </div>
+   </body>
+</html>
