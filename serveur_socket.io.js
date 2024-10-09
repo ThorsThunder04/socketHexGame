@@ -8,7 +8,6 @@ server.listen(8888, () => {console.log('Le serveur écoute sur le port 8888');})
 
 app.get('/', (request, response) => {
     response.sendFile('client_socket.io.html', {root: __dirname});
-    
 });
 
 app.get("/clientScript", (_, response) => {
@@ -54,16 +53,11 @@ function filterIndexErr(pos, relativePositions, dims) {
 	let newArr = [];
 	for (rPos of relativePositions) {
 		let [ ny, nx ] = rPos;
-        // console.log("pos:" + pos);
-        // console.log("rPos:" + rPos);
-        // console.log((ny+y) + ", " + (nx+x));
 
 		if (((y+ny) >= 0) && ((y+ny) < dims) &&
             ((x+nx) >= 0) && ((x+nx) < dims)) 
         {
-            // console.dir(rPos);
 			newArr.push(rPos);
-            // console.dir(newArr);
 		}
 	}
 	return newArr;
@@ -176,8 +170,7 @@ io.on('connection', (socket) => {
         let {UID, tile} = data;
         // if the UID is one that actually exists
         if (!hasWinner && UID >= 0 && UID < joinedUsers.length) {
-            // console.dir(joinedUsers);
-            // console.dir(whosPlaying);
+
             if (whosPlaying.includes(UID)) {
                 console.log("Who's playing: " + whosPlaying[coin%2]);
                 // if this is the UID of the player who's turn it is
