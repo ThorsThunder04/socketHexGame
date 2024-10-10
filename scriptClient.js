@@ -10,7 +10,7 @@ let leaveButton = document.getElementById("leave");
 function join() {
     let n = document.getElementById("name").value;
     console.log(n + " joining the the party");
-    socket.emit("join", n);
+    socket.emit("newPlayer", n);
     nick = n;
     joinButton.setAttribute("disabled", "disabled");
     leaveButton.removeAttribute("disabled");
@@ -23,13 +23,13 @@ function leave() {
     joinButton.removeAttribute("disabled");
     playerList.innerHTML = "";
     sendMes.setAttribute("disabled", "disabled");
-    socket.emit("leave", playerNb);
+    socket.emit("playerLeave", playerNb);
 }
 
 function send() {
     let message = nick + " : " + inputMes.value + "\n";
     inputMes.value = "";
-    socket.emit("sendMessage", message);
+    socket.emit("sentMessage", message);
 }
 
 socket.on("currentPlayers", data => {
@@ -40,25 +40,9 @@ socket.on("currentPlayers", data => {
     }
 })
 
-socket.on("joinSuccess", data => {
-    playerNb = parseInt(data);
-    console.log("playerNb: " + playerNb);
-});
 
 socket.on("joinFailed", data => {
     console.log(data);
-});
-
-socket.on("playerLeave", data => {
-    let nbL = parseInt(data);
-    if (playerNb > nbL) {
-        playerNb--;
-        console.log("new player number: " + playerNb);
-    }
-});
-
-socket.on("newPlayer", data => {
-    playerList.innerHTML += data.name;
 });
 
 socket.on("loadGameTable", data => {

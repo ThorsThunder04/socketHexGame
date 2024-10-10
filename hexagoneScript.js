@@ -46,7 +46,7 @@ function genereDamier(rayon, nbLignes, nbColonnes) {
                console.log(selectedID);
                // d3.select(this).attr('fill', 'red');
                
-               socket.emit("selectionHexagon", {"UID": playerNumber, "tile": parseInt(selectedID.substring(1))});
+               socket.emit("selectionHexagon", parseInt(selectedID.substring(1)));
             }
          );
       }

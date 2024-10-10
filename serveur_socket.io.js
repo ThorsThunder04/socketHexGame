@@ -15,6 +15,7 @@ app.get("file/:file", (req,res) => {
 });
 
 let joinedUsers = [];
+let socketList = [];
 let nbJoueurs = 2;
 let msgParity = 0; // just for differentiating messages
 let whosPlaying = [-1,-1]; 
@@ -133,8 +134,8 @@ function dfs(arr, dims, root, player) {
 }
 
 
-io.on('connection', (socket) => {
-    socket.on('initialLoad', data => {
+io.on("connection", (socket) => {
+    socket.on("initialLoad", data => {
         console.log("Message reçu du client :", data);
         socket.emit("currentPlayers", joinedUsers);
         socket.emit("createTable", wh);
@@ -152,27 +153,26 @@ io.on('connection', (socket) => {
         } else if (joinedUsers.includes(data)) {
             socket.emit("joinFailed", "Player Already Joined");
         } else {
+            socketList.push(socket.id);
             joinedUsers.push(data);
             console.log(data + " JOINED!");
-            socket.emit("joinSuccess", joinedUsers.length-1)
             io.emit("currentPlayers", joinedUsers);
             // ! this is for automatically making people join the grid game. Should be changed
             if (joinedUsers.length < 3) {whosPlaying[joinedUsers.length-1] = joinedUsers.length-1;}
-
         }
     });
 
     socket.on("playerLeave", playerNum => {
         console.log(joinedUsers[playerNum] + " LEFT!");
-        joinedUsers.splice(playerNum, 1); 
-        socket.broadcast.emit("playerLeave", playerNum); // if a player's number is > the one who left. They decrement their num
+        joinedUsers.splice(playerNum, 1);
+        socketList.splice(socket.id, 1); 
         io.emit("currentPlayers", joinedUsers);
     });
 
     socket.on("sentMessage", data => {
         // makes sure the player exists
-        if (data["player"] < joinedUsers.length && data["player"] != -1) {
-            let formattedMessage = " " + joinedUsers[data["player"]] + ": " + data["text"];
+        if (socketList.includes(socket.id)) {
+            let formattedMessage = " " + joinedUsers[socketList.indexOf(socket.id)] + ": " + data;
             formattedMessage = ((msgParity%2) ? "%%%" : "###") + formattedMessage; // kinda useless
             msgParity++;
             io.emit("newMessage", formattedMessage);
@@ -181,30 +181,24 @@ io.on('connection', (socket) => {
 
 
     socket.on("selectionHexagon", data => {
-        let {UID, tile} = data;
-        // if the UID is one that actually exists
-        if (!hasWinner && UID >= 0 && UID < joinedUsers.length) {
+        let tile = data;
 
-            if (whosPlaying.includes(UID)) {
-                console.log("Who's playing: " + whosPlaying[coin%2]);
-                // if this is the UID of the player who's turn it is
-                if (whosPlaying[coin%2] == UID) {
-                    let yT = Math.floor(tile/wh);
-                    let xT = tile%wh;
-                    if (gameTable[yT][xT] == -1) {
-                        console.log(tile + colors[coin%2]);
-                        io.emit("justPlayed", {"tile":tile, "color":colors[coin%2]});
-                        gameTable[yT][xT] = coin%2;
-                        
-                        // check if there is a winner using the depth first serach algorithm
-                        if (dfs(gameTable, wh, [yT, xT], coin%2)) {
-                            hasWinner = true;
-                        } else {
-                            coin++;
-                        }
-                    }
+        if (!hasWinner && whosPlaying.includes(socket.id)
+        && socketList.indexOf(socket.id) === (coin % 2)) {
+            let yT = Math.floor(tile/wh);
+            let xT = tile%wh;
+            if (gameTable[yT][xT] == -1) {
+                console.log(tile + colors[coin%2]);
+                io.emit("justPlayed", {"tile":tile, "color":colors[coin%2]});
+                gameTable[yT][xT] = coin%2;
+                
+                // check if there is a winner using the depth first serach algorithm
+                if (dfs(gameTable, wh, [yT, xT], coin%2)) {
+                    hasWinner = true;
+                } else {
+                    coin++;
                 }
-            } 
+            }                 
         }
         if (hasWinner) {
             let w = coin%2;
