@@ -14,7 +14,7 @@ function genereDamier(rayon, nbLignes, nbColonnes) {
 
    var distance =  rayon - (Math.sin(1 * Math.PI / 3) * rayon);  // plus grande distance entre l'hexagone et le cercle circonscrit
 
-   d3.select("#tablier")
+   d3.select("#field")
       .append("svg")
       .attr("width", 2*rayon*nbColonnes + rayon*(nbLignes-1) + "px")
       .attr("height", 2*rayon*nbLignes + "px");
