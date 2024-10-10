@@ -10,7 +10,7 @@ app.get('/', (request, response) => {
     response.sendFile('client_socket.io.html', {root: __dirname});
 });
 
-app.get("file/:file", (req,res) => {
+app.get("/file/:file", (req,res) => {
     res.sendFile(req.params.file, {root: __dirname});
 });
 
@@ -222,5 +222,4 @@ io.on("connection", (socket) => {
             {"table":gameTable, "colors":colors});
 
     })
-
 });
