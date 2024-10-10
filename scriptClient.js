@@ -34,9 +34,9 @@ function send() {
 
 socket.on("currentPlayers", data => {
     playerList.innerHTML = "";
-    console.log(data.listPlayers);
-    for (let c in data.listPlayers) {
-        playerList.innerHTML += data.listPlayers[c] + " ";
+    console.log(data);
+    for (let c in data) {
+        playerList.innerHTML += data[c] + " ";
     }
 })
 

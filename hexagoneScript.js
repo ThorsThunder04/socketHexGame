@@ -4,7 +4,7 @@ function creeHexagone(rayon) {
       var angle = i * Math.PI / 3;
       var x = Math.sin(angle) * rayon;
       var y = -Math.cos(angle) * rayon;
-      console.log("x="+Math.round(x*100)/100+" y="+Math.round(y*100)/100);
+      //console.log("x="+Math.round(x*100)/100+" y="+Math.round(y*100)/100);
       points.push([Math.round(x*100)/100, Math.round(y*100)/100]);
    }
    return points;
@@ -42,8 +42,8 @@ function genereDamier(rayon, nbLignes, nbColonnes) {
             .attr("stroke", "black")
             .on("click", function(d) {
                let selectedID = d3.select(this).attr('id');
-               console.log(d3.select(this));
-               console.log(selectedID);
+               //console.log(d3.select(this));
+               //console.log(selectedID);
                // d3.select(this).attr('fill', 'red');
                
                socket.emit("selectionHexagon", parseInt(selectedID.substring(1)));

@@ -1,3 +1,7 @@
+/* TODO (ema)
+- figure out what to do with the coin when player leaves mid party
+*/
+
 const express = require('express');
 const app = express();
 const http = require('http');
@@ -135,17 +139,16 @@ function dfs(arr, dims, root, player) {
 
 
 io.on("connection", (socket) => {
-    socket.on("initialLoad", data => {
-        console.log("Message reçu du client :", data);
-        socket.emit("currentPlayers", joinedUsers);
-        socket.emit("createTable", wh);
+    
+    socket.emit("currentPlayers", joinedUsers);
+    socket.emit("createTable", wh);
 
-        // loads the table for them if they are spectating and there is already a game
-        if (coin > 0) { // only does it if there is already a game in session
-            socket.emit("loadGameTable", 
-                {"table":gameTable, "colors":colors});
-        }
-    });
+    // loads the table for them if they are spectating and there is already a game
+    if (coin > 0) { // only does it if there is already a game in session
+        socket.emit("loadGameTable", 
+            {"table":gameTable, "colors":colors});
+    
+    };
 
     socket.on("newPlayer", data => {
         if (joinedUsers.length + 1 > nbJoueurs) {
@@ -157,16 +160,27 @@ io.on("connection", (socket) => {
             joinedUsers.push(data);
             console.log(data + " JOINED!");
             io.emit("currentPlayers", joinedUsers);
+            io.emit("newMessage", data + " joined the party!");
             // ! this is for automatically making people join the grid game. Should be changed
-            if (joinedUsers.length < 3) {whosPlaying[joinedUsers.length-1] = joinedUsers.length-1;}
+            if (joinedUsers.length < 3) whosPlaying.push(socket.id);
         }
     });
 
     socket.on("playerLeave", playerNum => {
-        console.log(joinedUsers[playerNum] + " LEFT!");
-        joinedUsers.splice(playerNum, 1);
-        socketList.splice(socket.id, 1); 
+        let ind = socketList.indexOf(socket.id);
+        console.log(joinedUsers[ind] + " LEFT!");
+        io.emit("newMessage",joinedUsers[ind]+ " left the party :(");
+        joinedUsers.splice(ind, 1);
+        socketList.splice(ind, 1); 
         io.emit("currentPlayers", joinedUsers);
+    });
+
+    socket.on("disconnect", data => {
+        if (!socketList.includes(socket.id)) return;
+        let index = socketList.indexOf(socket.id);
+        io.emit("newMessage", joinedUsers[index] + " left the party :(");
+        joinedUsers.splice(index, 1);
+        socketList.splice(index, 1);
     });
 
     socket.on("sentMessage", data => {
@@ -188,7 +202,7 @@ io.on("connection", (socket) => {
             let yT = Math.floor(tile/wh);
             let xT = tile%wh;
             if (gameTable[yT][xT] == -1) {
-                console.log(tile + colors[coin%2]);
+                //console.log(tile + colors[coin%2]);
                 io.emit("justPlayed", {"tile":tile, "color":colors[coin%2]});
                 gameTable[yT][xT] = coin%2;
                 
