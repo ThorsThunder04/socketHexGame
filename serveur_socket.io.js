@@ -141,7 +141,7 @@ function dfs(arr, dims, root, player) {
 io.on("connection", (socket) => {
     
     socket.emit("currentPlayers", joinedUsers);
-    socket.emit("createTable", wh);
+    socket.emit("createTable", {size: wh, colors: colors});
 
     // loads the table for them if they are spectating and there is already a game
     if (coin > 0) { // only does it if there is already a game in session
