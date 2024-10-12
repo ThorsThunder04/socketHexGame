@@ -27,7 +27,7 @@ function leave() {
 }
 
 function send() {
-    let message = nick + " : " + inputMes.value + "\n";
+    let message = inputMes.value + "\n";
     inputMes.value = "";
     socket.emit("sentMessage", message);
 }
@@ -72,3 +72,12 @@ socket.on("winner", data => {
 leaveButton.setAttribute("disabled",  "disabled");
 sendMes.setAttribute("disabled", "disabled");
 chat.value = ""; // erases the chat on reload / new tab
+
+
+// So that hitting Enter in input field automatically presses the button
+document.getElementById("name")
+    .addEventListener("keypress", (e) => {
+        if (e.key == "Enter") join();
+});
+inputMes.addEventListener("keypress", (e) => {
+    if (e.key == "Enter") send();});

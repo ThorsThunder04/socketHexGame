@@ -186,8 +186,8 @@ io.on("connection", (socket) => {
     socket.on("sentMessage", data => {
         // makes sure the player exists
         if (socketList.includes(socket.id)) {
-            let formattedMessage = " " + joinedUsers[socketList.indexOf(socket.id)] + ": " + data;
-            formattedMessage = ((msgParity%2) ? "%%%" : "###") + formattedMessage; // kinda useless
+            let formattedMessage = joinedUsers[socketList.indexOf(socket.id)] + ": " + data;
+            formattedMessage = ((msgParity%2) ? "%%%" : "###") + " " + formattedMessage; // kinda useless
             msgParity++;
             io.emit("newMessage", formattedMessage);
         }
