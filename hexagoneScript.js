@@ -24,11 +24,11 @@ function calcMidPoint(pt1, pt2) {
  * [Reference Image](https://upload.wikimedia.org/wikipedia/commons/3/38/Hex-board-11x11-(2).jpg)
  * 
  * ## Paramaters 
- * @param {Number} edgeNum: 0: Top, 1: Right, 2: Botton, 3: Left
- * @param {Number[][]} hexagoneList: relative X,Y coords for hexagone of a certain radius (calculated with `creeHexagone(radiux)`)
+ * @param {Number} edgeNum: 0: Top, 1: Right, 2: Bottom, 3: Left
+ * @param {Number[][]} hexagoneList: relative X,Y coords for hexagone of a certain radius (calculated with `creeHexagone(radius)`)
  * @returns {Number[][]} filtered hexagoneList for given edge
  */
-function edgeHexagone(edgeNum, hexagonList) {
+function edgeHexagone(edgeNum, hexagoneList) {
 
    // clones the array, so that we aren't modifying the same object
    hexL = Array.from(hexagoneList); 
@@ -53,6 +53,8 @@ function edgeHexagone(edgeNum, hexagonList) {
       case 3: // Left
          hexL[3] = calcMidPoint(hexL[2], hexL[3]);
          hexL[5] = calcMidPoint(hexL[5], hexL[0]);
+         hexL.splice(4,1);
+         break;
    }
    return hexL;
 }
@@ -75,23 +77,59 @@ function placeShape(d, color) {
    return elt;
 }
 
+function makeDString(ligne, colonne, rayon, distance, hexList, xFormula, yFormula) {
+   let d = "";
+   let x, y;
+   for (h in hexList) {
+      x = hexList[h][0] + (rayon-distance)*(2+2*colonne) + (rayon-distance)*ligne + rayon + xFormula;
+      y = hexList[h][1] + distance*2 +(rayon-distance*2)*(1+2*ligne) + rayon + yFormula;
+      if (h == 0) {
+         d += `M${x},${y} `;
+      } else {
+         d += `L${x},${y} `;
+      }
+   }
+   d += "Z";
+   return d;
+}
+
 function genereDamier(rayon, nbLignes, nbColonnes) {
 
    var distance =  rayon - (Math.sin(1 * Math.PI / 3) * rayon);  // plus grande distance entre l'hexagone et le cercle circonscrit
 
    d3.select("#field")
       .append("svg")
-      .attr("width", 2*rayon*nbColonnes + rayon*(nbLignes-1) + "px")
-      .attr("height", 2*rayon*nbLignes + "px");
+      .attr("width", 2*rayon*nbColonnes + rayon*(nbLignes-1) + 2*rayon + "px")
+      .attr("height", 2*rayon*nbLignes + 2*rayon + "px");
 
    var hexagone = creeHexagone(rayon);
    for (var ligne=0; ligne < nbLignes; ligne++) {
       for (var colonne=0; colonne < nbColonnes; colonne++) {
-         var d = "";
-         var x, y;
+
+         let defaultParams = [ligne, colonne, rayon, distance];
+         let d = "";
+         let x,y;
+         if (ligne == 0) {
+            let edgeH = edgeHexagone(1, hexagone);
+            let xOff = -rayon + distance;
+            let yOff = -rayon*1.5;
+            d = makeDString(...defaultParams, 
+                                 edgeH,
+                                 xOff,
+                                 yOff);
+            placeShape(d, "red");
+            if (colonne == nbColonnes-1) {
+
+               d = makeDString(ligne, colonne+1, rayon, distance, edgeH, xOff, yOff);
+               placeShape(d, "red");
+            }
+         }
+
+
+         d = "";
          for (h in hexagone) {
-            x = hexagone[h][0]+(rayon-distance)*(2+2*colonne) + (rayon-distance)*ligne;
-            y = distance*2 + hexagone[h][1]+(rayon-distance*2)*(1+2*ligne);
+            x = hexagone[h][0]+(rayon-distance)*(2+2*colonne) + (rayon-distance)*ligne + rayon;
+            y = distance*2 + hexagone[h][1]+(rayon-distance*2)*(1+2*ligne) + rayon;
             if (h == 0) {
                d += `M${x},${y} `;
             } else {
