@@ -1,4 +1,4 @@
-function creeHexagone(rayon) {
+function creeHexagon(rayon) {
    var points = new Array();
    for (var i = 0; i < 6; ++i) {
       var angle = i * Math.PI / 3;
@@ -25,13 +25,13 @@ function calcMidPoint(pt1, pt2) {
  * 
  * ## Paramaters 
  * @param {Number} edgeNum: 0: Top, 1: Right, 2: Bottom, 3: Left
- * @param {Number[][]} hexagoneList: relative X,Y coords for hexagone of a certain radius (calculated with `creeHexagone(radius)`)
- * @returns {Number[][]} filtered hexagoneList for given edge
+ * @param {Number[][]} hexagonList: relative X,Y coords for hexagon of a certain radius (calculated with `creeHexagon(radius)`)
+ * @returns {Number[][]} filtered hexagonList for given edge
  */
-function edgeHexagone(edgeNum, hexagoneList) {
+function edgeHexagon(edgeNum, hexagonList) {
 
    // clones the array, so that we aren't modifying the same object
-   hexL = Array.from(hexagoneList); 
+   hexL = Array.from(hexagonList); 
 
    // TODO (thor): see if can be changed to math formulas with edgeNum (instead of 4 switch cases)
    switch (edgeNum) {
@@ -95,14 +95,14 @@ function makeDString(ligne, colonne, rayon, distance, hexList, xFormula, yFormul
 
 function genereDamier(rayon, nbLignes, nbColonnes) {
 
-   var distance =  rayon - (Math.sin(1 * Math.PI / 3) * rayon);  // plus grande distance entre l'hexagone et le cercle circonscrit
+   var distance =  rayon - (Math.sin(1 * Math.PI / 3) * rayon);  // plus grande distance entre l'hexagon et le cercle circonscrit
 
    d3.select("#field")
       .append("svg")
       .attr("width", 2*rayon*nbColonnes + rayon*(nbLignes-1) + 2*rayon + "px")
       .attr("height", 2*rayon*nbLignes + 2*rayon + "px");
 
-   var hexagone = creeHexagone(rayon);
+   var hexagon = creeHexagon(rayon);
    for (var ligne=0; ligne < nbLignes; ligne++) {
       for (var colonne=0; colonne < nbColonnes; colonne++) {
 
@@ -110,7 +110,7 @@ function genereDamier(rayon, nbLignes, nbColonnes) {
          let d = "";
          let x,y;
          if (ligne == 0) {
-            let edgeH = edgeHexagone(1, hexagone);
+            let edgeH = edgeHexagon(1, hexagon);
             let xOff = -rayon + distance;
             let yOff = -rayon*1.5;
             d = makeDString(...defaultParams, 
@@ -127,9 +127,9 @@ function genereDamier(rayon, nbLignes, nbColonnes) {
 
 
          d = "";
-         for (h in hexagone) {
-            x = hexagone[h][0]+(rayon-distance)*(2+2*colonne) + (rayon-distance)*ligne + rayon;
-            y = distance*2 + hexagone[h][1]+(rayon-distance*2)*(1+2*ligne) + rayon;
+         for (h in hexagon) {
+            x = hexagon[h][0]+(rayon-distance)*(2+2*colonne) + (rayon-distance)*ligne + rayon;
+            y = distance*2 + hexagon[h][1]+(rayon-distance*2)*(1+2*ligne) + rayon;
             if (h == 0) {
                d += `M${x},${y} `;
             } else {
@@ -157,5 +157,5 @@ function genereDamier(rayon, nbLignes, nbColonnes) {
 socket.on("createTable", data => {
    let { size, colors} = data;
    genereDamier(30, size, size);
-   // console.log(creeHexagone(10));
+   // console.log(creeHexagon(10));
 });
