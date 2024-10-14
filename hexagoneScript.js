@@ -64,18 +64,14 @@ function edgeHexagone(edgeNum, hexagonList) {
  * ## Params 
  * @param {String} d: values for the svg path
  * @param {String} color: fill color for the hexagon/shape
- * @param {String|null} id: if not null, adds an id to th path element
  * @returns Returns the d3 element for more manipulations if desired
  */
-function placeShape(d, color, id) {
+function placeShape(d, color) {
    let elt = d3.select("svg")
             .append("path")
             .attr("d", d)
             .attr("fill", color)
             .attr("stroke", "black");
-   if (id != null) {
-      elt = elt.attr("id", id)
-   }
    return elt;
 }
 
@@ -104,7 +100,8 @@ function genereDamier(rayon, nbLignes, nbColonnes) {
          }
          d += "Z";
 
-         placeShape(d, "#C3DBDB", "h"+(ligne*nbLignes+colonne))
+         placeShape(d, "#C3DBDB")
+            .attr("id", "h"+(ligne*nbLignes+colonne))
             .on("click", function(d) {
                let selectedID = d3.select(this).attr('id');
                //console.log(d3.select(this));
