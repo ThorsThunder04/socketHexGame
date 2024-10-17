@@ -217,7 +217,7 @@ io.on("connection", (socket) => {
         if (hasWinner) {
             let w = coin%2;
             io.emit("winner", 
-                {"winner": joinedUsers[whosPlaying[w]],
+                {"winner": joinedUsers[w],
                  "color": colors[w]}
             ); 
         }

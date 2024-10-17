@@ -39,10 +39,13 @@ function edgeHexagon(edgeNum, hexagonList) {
    // TODO (thor): see if can be changed to math formulas with edgeNum (instead of 4 switch cases)
    switch (edgeNum) {
       case 0: // Top
+         //! need to determin formula for n, m and p from edgeNum (can maybe be grouped into 2 cases, group up 0,3 and 1,2)
+         //* hexL[n] = calcMidPoint(hexL[n%6], hexL((n+1)%6)) | when first param = n and second = n+1
+         //* hexL[m] = calcMidPoint(hexL[m%6], hexL((m-1)%6)) | when first param = m and second = m-1
          hexL[1] = calcMidPoint(hexL[1], hexL[2]);
-         hexL[5] = calcMidPoint(hexL[4], hexL[5]);
-         hexL.splice(0,1); //! Maybe instead of splice, I just set it to the midpoint between hexL[1] and hexL[5]
-                           //! This will allow me to still use that relative point later on if I want to manipulate the shape a little more
+         hexL[5] = calcMidPoint(hexL[5], hexL[4]);
+         //* hexL[p] = calcMidPoint(hexL[n], hexL[m]) | will allow to use this same point when dealing with corners
+         hexL.splice(0,1);
          break;
       case 1: // Right
          hexL[0] = calcMidPoint(hexL[0], hexL[5]);
