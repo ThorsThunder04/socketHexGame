@@ -1,9 +1,12 @@
-function creeHexagon(rayon) {
+const RAYON = 30;
+const DISTANCE = RAYON - (Math.sin(1 * Math.PI / 3) * RAYON);  // plus grande distance entre l'hexagon et le cercle circonscrit
+
+function creeHexagon() {
    var points = new Array();
    for (var i = 0; i < 6; ++i) {
       var angle = i * Math.PI / 3;
-      var x = Math.sin(angle) * rayon;
-      var y = -Math.cos(angle) * rayon;
+      var x = Math.sin(angle) * RAYON;
+      var y = -Math.cos(angle) * RAYON;
       //console.log("x="+Math.round(x*100)/100+" y="+Math.round(y*100)/100);
       points.push([Math.round(x*100)/100, Math.round(y*100)/100]);
    }
@@ -81,12 +84,12 @@ function placeShape(d, color) {
    return elt;
 }
 
-function makeDString(ligne, colonne, rayon, distance, hexList, xFormula, yFormula) {
+function makeDString(ligne, colonne, hexList, xFormula = 0, yFormula = 0) {
    let d = "";
    let x, y;
    for (h in hexList) {
-      x = hexList[h][0] + (rayon-distance)*(2+2*colonne) + (rayon-distance)*ligne + rayon + xFormula;
-      y = hexList[h][1] + distance*2 +(rayon-distance*2)*(1+2*ligne) + rayon + yFormula;
+      x = hexList[h][0] + (RAYON-DISTANCE)*(2+2*colonne) + (RAYON-DISTANCE)*ligne + RAYON + xFormula;
+      y = hexList[h][1] + DISTANCE*2 +(RAYON-DISTANCE*2)*(1+2*ligne) + RAYON + yFormula;
       if (h == 0) {
          d += `M${x},${y} `;
       } else {
@@ -97,34 +100,34 @@ function makeDString(ligne, colonne, rayon, distance, hexList, xFormula, yFormul
    return d;
 }
 
-function genereDamier(rayon, nbLignes, nbColonnes) {
-
-   var distance =  rayon - (Math.sin(1 * Math.PI / 3) * rayon);  // plus grande distance entre l'hexagon et le cercle circonscrit
+function genereDamier(nbLignes, nbColonnes) {
 
    d3.select("#field")
       .append("svg")
-      .attr("width", 2*rayon*nbColonnes + rayon*(nbLignes-1) + 2*rayon + "px")
-      .attr("height", 2*rayon*nbLignes + 2*rayon + "px");
+      .attr("width", 2*RAYON*nbColonnes + RAYON*(nbLignes-1) + 2*RAYON + "px")
+      .attr("height", 2*RAYON*nbLignes + 2*RAYON + "px");
 
-   var hexagon = creeHexagon(rayon);
+   var hexagon = creeHexagon();
    for (var ligne=0; ligne < nbLignes; ligne++) {
       for (var colonne=0; colonne < nbColonnes; colonne++) {
 
-         let defaultParams = [ligne, colonne, rayon, distance];
          let d = "";
          let x,y;
-         if (ligne == 0) {
-            let edgeH = edgeHexagon(1, hexagon);
-            let xOff = -rayon + distance;
-            let yOff = -rayon*1.5;
-            d = makeDString(...defaultParams, 
+
+         if (ligne == 0) { // load coloured rows for top
+            let edgeH = edgeHexagon(0, hexagon); // get cropped hexagons (they become pentagons)
+            // set offsets from main top row
+            let xOff = -RAYON + DISTANCE; 
+            let yOff = -RAYON*1.5;
+            // load the dString based off of these offsets and the new shape values
+            d = makeDString(ligne, colonne,
                                  edgeH,
                                  xOff,
                                  yOff);
-            placeShape(d, "red");
-            if (colonne == nbColonnes-1) {
+            placeShape(d, "red"); // place a shape with this dString
+            if (colonne == nbColonnes-1) { // if on last row of line, place another shape 
 
-               d = makeDString(ligne, colonne+1, rayon, distance, edgeH, xOff, yOff);
+               d = makeDString(ligne, colonne+1, edgeH, xOff, yOff); 
                placeShape(d, "red");
             }
          }
@@ -132,8 +135,8 @@ function genereDamier(rayon, nbLignes, nbColonnes) {
 
          d = "";
          for (h in hexagon) {
-            x = hexagon[h][0]+(rayon-distance)*(2+2*colonne) + (rayon-distance)*ligne + rayon;
-            y = distance*2 + hexagon[h][1]+(rayon-distance*2)*(1+2*ligne) + rayon;
+            x = hexagon[h][0]+(RAYON-DISTANCE)*(2+2*colonne) + (RAYON-DISTANCE)*ligne + RAYON;
+            y = DISTANCE*2 + hexagon[h][1]+(RAYON-DISTANCE*2)*(1+2*ligne) + RAYON;
             if (h == 0) {
                d += `M${x},${y} `;
             } else {
@@ -153,13 +156,12 @@ function genereDamier(rayon, nbLignes, nbColonnes) {
                socket.emit("selectionHexagon", parseInt(selectedID.substring(1)));
             }
          );
-         
       }
    }
 }
 
 socket.on("createTable", data => {
    let { size, colors} = data;
-   genereDamier(30, size, size);
+   genereDamier(size, size);
    // console.log(creeHexagon(10));
 });
