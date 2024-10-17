@@ -1,25 +1,24 @@
 let socket = io();
-let gameStop = false; // indicates whether a spectator is following the game live
 
 let joinButton = document.getElementById("join");
 let leaveButton = document.getElementById("leave");
-
+const spectatorControls = [bStart, bBack, bForward, bLive];
 
 function join() {
-    let n = document.getElementById("name").value;
-    console.log(n + " joining the the party");
-    socket.emit("newPlayer", n);
-    joinButton.setAttribute("disabled", "disabled");
-    leaveButton.removeAttribute("disabled");
-    sendMes.removeAttribute("disabled");
+    console.log(nick.value + " joining the the party");
+
+    socket.emit("newPlayer", nick.value);
 }
 
 function leave() {
     console.log("leaving the party");
+
     leaveButton.setAttribute("disabled", "disabled");
     joinButton.removeAttribute("disabled");
     playerList.innerHTML = "";
     sendMes.setAttribute("disabled", "disabled");
+    spectatorControls.map(e => e.removeAttribute("disabled"));
+
     socket.emit("playerLeave");
 }
 
@@ -43,6 +42,10 @@ function spectLive() {
 }
 
 socket.on("currentPlayers", data => {
+    if (data.length == 2 && bStart.getAttribute("disabled") != "disabled")
+        joinButton.setAttribute("disabled", "disabled");
+    else if (bStart.getAttribute("disabled"))
+        joinButton.removeAttribute("disabled")
     playerList.innerHTML = "";
     console.log(data);
     for (let c in data) {
@@ -50,6 +53,12 @@ socket.on("currentPlayers", data => {
     }
 })
 
+socket.on("joinSuccess", () => {
+    joinButton.setAttribute("disabled", "disabled");
+    leaveButton.removeAttribute("disabled");
+    sendMes.removeAttribute("disabled");
+    spectatorControls.map(e => e.setAttribute("disabled", "disabled"));
+});
 
 socket.on("joinFailed", data => {
     console.log(data);
@@ -83,7 +92,6 @@ socket.on("newMessage", data => {
 });
 
 socket.on("justPlayed", data => {
-    if (gameStop) return; // spectator isnt following the game
     d3.select("#h"+data.tile).attr("fill", data.color);
 });
 
@@ -101,7 +109,7 @@ chat.value = ""; // erases the chat on reload / new tab
 
 
 // So that hitting Enter in input field automatically presses the button
-document.getElementById("name")
+document.getElementById("nick")
     .addEventListener("keypress", (e) => {
         if (e.key == "Enter") join();
 });

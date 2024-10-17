@@ -22,7 +22,7 @@ app.get("/file/:file", (req,res) => {
 
 let joinedUsers = [];
 let socketList = [];
-//form of spectatorStates: {socket.id: [currentMove: int, followsGame: boolean]};
+//form of spectatorStates: {socket.id: moveBeingViewed};
 let spectatorStates = {};
 let nbJoueurs = 2;
 let msgParity = 0; // just for differentiating messages
@@ -145,7 +145,7 @@ io.on("connection", (socket) => {
     
     socket.emit("currentPlayers", joinedUsers);
     socket.emit("createTable", {size: wh, colors: colors});
-    spectatorStates[socket.id] = [history.length - 1, true];
+    spectatorStates[socket.id] = history.length - 1;
 
     // loads the table for them if they are spectating and there is already a game
     if (coin > 0) { // only does it if there is already a game in session
@@ -164,6 +164,8 @@ io.on("connection", (socket) => {
             socketList.push(socket.id);
             joinedUsers.push(data);
             console.log(data + " JOINED!");
+
+            socket.emit("joinSuccess");
             io.emit("currentPlayers", joinedUsers);
             io.emit("newMessage", data + " joined the party!");
         }
@@ -211,8 +213,8 @@ io.on("connection", (socket) => {
                 io.except("timeOut").emit("justPlayed", {"tile":tile, "color":colors[coin%2]});
                 
                 for (let sock of Object.keys(spectatorStates)) {
-                    if (spectatorStates[sock][1])
-                        spectatorStates[sock][0]++;
+                    if (!Object.keys(socket.rooms).includes("timeOut"))
+                        spectatorStates[sock]++;
                 }
                 
                 gameTable[yT][xT] = coin%2;
@@ -250,7 +252,7 @@ io.on("connection", (socket) => {
                     "colors": colors});
                 break;
             case 1:
-                if (spectatorStates[socket.id] == 0) return;
+                if (spectatorStates[socket.id] == -1) return;
                 
                 if (!Object.keys(socket.rooms).includes("timeOut"))
                     socket.join("timeOut");
