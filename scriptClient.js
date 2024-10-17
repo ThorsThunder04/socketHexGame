@@ -68,6 +68,7 @@ socket.on("loadGameTable", data => {
             }
         }
     }
+    winnerMessage.style.display = "none";
 });
 
 socket.on("newView", data => {
@@ -88,6 +89,9 @@ socket.on("justPlayed", data => {
 
 //implement
 socket.on("winner", data => {
+    winnerMessage.innerHTML = `${data["winner"]} IS THE WINNER!!!`;
+    winnerMessage.style.color = data["color"];
+    winnerMessage.style.display = "block";
     console.log(data);
 });
 
