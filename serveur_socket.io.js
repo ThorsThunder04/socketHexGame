@@ -1,5 +1,7 @@
 /* TODO (ema)
+- controls only visible for spectators
 - figure out what to do with the coin when player leaves mid party
+- figure out the joining/leaving stuff
 */
 
 const express = require('express');
@@ -20,13 +22,15 @@ app.get("/file/:file", (req,res) => {
 
 let joinedUsers = [];
 let socketList = [];
+//form of spectatorStates: {socket.id: [currentMove: int, followsGame: boolean]};
+let spectatorStates = {};
 let nbJoueurs = 2;
 let msgParity = 0; // just for differentiating messages
-let whosPlaying = [-1,-1]; 
 let hasWinner = false;
 let coin = 0;
 const wh = 6;
 const colors = ["teal", "rgb(189 8 189)"];
+let history = [];
 let gameTable = [];
 for (let i = 0; i < wh; i++) {
     let a = [];
@@ -137,11 +141,11 @@ function dfs(arr, dims, root, player) {
     return (side1 && side2);
 }
 
-
 io.on("connection", (socket) => {
     
     socket.emit("currentPlayers", joinedUsers);
     socket.emit("createTable", {size: wh, colors: colors});
+    spectatorStates[socket.id] = [history.length - 1, true];
 
     // loads the table for them if they are spectating and there is already a game
     if (coin > 0) { // only does it if there is already a game in session
@@ -156,17 +160,16 @@ io.on("connection", (socket) => {
         } else if (joinedUsers.includes(data)) {
             socket.emit("joinFailed", "Player Already Joined");
         } else {
+            delete spectatorStates[socket.id];
             socketList.push(socket.id);
             joinedUsers.push(data);
             console.log(data + " JOINED!");
             io.emit("currentPlayers", joinedUsers);
             io.emit("newMessage", data + " joined the party!");
-            // ! this is for automatically making people join the grid game. Should be changed
-            if (joinedUsers.length < 3) whosPlaying.push(socket.id);
         }
     });
 
-    socket.on("playerLeave", playerNum => {
+    socket.on("playerLeave", () => {
         let ind = socketList.indexOf(socket.id);
         console.log(joinedUsers[ind] + " LEFT!");
         io.emit("newMessage",joinedUsers[ind]+ " left the party :(");
@@ -175,7 +178,8 @@ io.on("connection", (socket) => {
         io.emit("currentPlayers", joinedUsers);
     });
 
-    socket.on("disconnect", data => {
+    socket.on("disconnect", () => {
+        delete spectatorStates[socket.id];
         if (!socketList.includes(socket.id)) return;
         let index = socketList.indexOf(socket.id);
         io.emit("newMessage", joinedUsers[index] + " left the party :(");
@@ -197,16 +201,23 @@ io.on("connection", (socket) => {
     socket.on("selectionHexagon", data => {
         let tile = data;
 
-        if (!hasWinner && whosPlaying.includes(socket.id)
+        if (!hasWinner && socketList.includes(socket.id)
         && socketList.indexOf(socket.id) === (coin % 2)) {
             let yT = Math.floor(tile/wh);
             let xT = tile%wh;
             if (gameTable[yT][xT] == -1) {
-                //console.log(tile + colors[coin%2]);
-                io.emit("justPlayed", {"tile":tile, "color":colors[coin%2]});
+                console.log(tile);
+                history.push([tile, colors[coin%2]]);
+                io.except("timeOut").emit("justPlayed", {"tile":tile, "color":colors[coin%2]});
+                
+                for (let sock of Object.keys(spectatorStates)) {
+                    if (spectatorStates[sock][1])
+                        spectatorStates[sock][0]++;
+                }
+                
                 gameTable[yT][xT] = coin%2;
                 
-                // check if there is a winner using the depth first serach algorithm
+                // check if there is a winner using the depth first search algorithm
                 if (dfs(gameTable, wh, [yT, xT], coin%2)) {
                     hasWinner = true;
                 } else {
@@ -216,14 +227,66 @@ io.on("connection", (socket) => {
         }
         if (hasWinner) {
             let w = coin%2;
-            io.emit("winner", 
-                {"winner": joinedUsers[whosPlaying[w]],
-                 "color": colors[w]}
-            ); 
+            io.emit("winner", {
+                "winner": joinedUsers[w],
+                "color": colors[w]}); 
         }
     });
 
-    socket.on("resetGame", data => {
+//data: 0 (beginning) | 1 (step back) | 2 (step forward) | 3 (live)
+    socket.on("changeView", data => {
+        let newIndex;
+        let lastMove = history.length - 1;
+        switch(data) {
+            case 0:
+                spectatorStates[socket.id] = -1;
+                freshTable = newGameTable(wh);
+                
+                if (!Object.keys(socket.rooms).includes("timeOut"))
+                    socket.join("timeOut");
+                
+                socket.emit("loadGameTable", {
+                    "table" : freshTable, 
+                    "colors": colors});
+                break;
+            case 1:
+                if (spectatorStates[socket.id] == 0) return;
+                
+                if (!Object.keys(socket.rooms).includes("timeOut"))
+                    socket.join("timeOut");
+
+                socket.emit("newView", {
+                    "goBack": true, 
+                    "change": history[spectatorStates[socket.id]]
+                    });
+
+                spectatorStates[socket.id]--;
+                newIndex = spectatorStates[socket.id];
+                break;
+            case 2:
+                if (spectatorStates[socket.id] == lastMove) return;
+                
+                spectatorStates[socket.id]++;
+                newIndex = spectatorStates[socket.id];
+                
+                if (newIndex == lastMove) // player up to date
+                    socket.leave("timeOut");    
+                
+                socket.emit("newView", {
+                    "goBack": false, 
+                    "change": history[spectatorStates[socket.id]]
+                    });
+                break;
+            case 3:
+                spectatorStates[socket.id] = lastMove;
+                socket.leave("timeOut");
+                socket.emit("loadGameTable", {
+                    "table": gameTable, 
+                    "colors": colors});
+            }
+        });
+
+    socket.on("resetGame", () => {
         // sets everything to defaults
         hasWinner = false;
         coin = 0;
@@ -232,8 +295,9 @@ io.on("connection", (socket) => {
 
         // resets everyone's tables to be empty according to the server side gameTable
         // TODO this also removes the "x IS THE WINNER" message client side (which should be done elsewhere really)
-        io.emit("loadGameTable", 
-            {"table":gameTable, "colors":colors});
+        io.emit("loadGameTable", {
+            "table":gameTable,
+            "colors":colors});
 
     })
 });

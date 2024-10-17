@@ -1,7 +1,5 @@
-
 let socket = io();
-let playerNb;
-let nick;
+let gameStop = false; // indicates whether a spectator is following the game live
 
 let joinButton = document.getElementById("join");
 let leaveButton = document.getElementById("leave");
@@ -11,7 +9,6 @@ function join() {
     let n = document.getElementById("name").value;
     console.log(n + " joining the the party");
     socket.emit("newPlayer", n);
-    nick = n;
     joinButton.setAttribute("disabled", "disabled");
     leaveButton.removeAttribute("disabled");
     sendMes.removeAttribute("disabled");
@@ -23,13 +20,26 @@ function leave() {
     joinButton.removeAttribute("disabled");
     playerList.innerHTML = "";
     sendMes.setAttribute("disabled", "disabled");
-    socket.emit("playerLeave", playerNb);
+    socket.emit("playerLeave");
 }
 
 function send() {
     let message = inputMes.value + "\n";
     inputMes.value = "";
     socket.emit("sentMessage", message);
+}
+
+function spectStart() {
+    socket.emit("changeView", 0);
+}
+function spectStepBack() {
+    socket.emit("changeView", 1);
+}
+function spectStepForward() {
+    socket.emit("changeView", 2);
+}
+function spectLive() {
+    socket.emit("changeView", 3);
 }
 
 socket.on("currentPlayers", data => {
@@ -47,13 +57,24 @@ socket.on("joinFailed", data => {
 
 socket.on("loadGameTable", data => {
     let {table, colors} = data;
-    for (let y of table) {
-        for (let x of table) {
-            if (table[y][x] != -1) {
-                d3.select("#h" + (y*table.length + x)).attr("fill", colors[table[y][x]]);
+    //console.log(table);
+    for (let y in table) {
+        for (let x in table) {
+            let id = parseInt(y)*table.length + parseInt(x);
+            if (table[y][x] !== -1) {
+                d3.select("#h" + id).attr("fill", colors[table[y][x]]);
+            } else {
+                d3.select("#h" + id).attr("fill", "#C3DBDB");
             }
         }
     }
+});
+
+socket.on("newView", data => {
+    if (data.goBack) {
+        d3.select("#h" + data.change[0]).attr("fill", "#C3DBDB");
+    } else
+        d3.select("#h" + data.change[0]).attr("fill", data.change[1]);
 });
 
 socket.on("newMessage", data => {
@@ -61,6 +82,7 @@ socket.on("newMessage", data => {
 });
 
 socket.on("justPlayed", data => {
+    if (gameStop) return; // spectator isnt following the game
     d3.select("#h"+data.tile).attr("fill", data.color);
 });
 
