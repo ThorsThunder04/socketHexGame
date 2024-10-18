@@ -1,8 +1,12 @@
+/* (Thor)
+ TODO make player colors work with css instead of hardcoding them to each element (would then just require changing a css class in an element)
+*/
 let socket = io();
 
 let joinButton = document.getElementById("join");
 let leaveButton = document.getElementById("leave");
 const SPECTATOR_CONTROLS = [bStart, bBack, bForward, bLive];
+let COLORS; // gets the colors from hexagoneScript.js createTable socket call
 
 function join() {
     console.log(nick.value + " joining the the party");
@@ -93,7 +97,13 @@ socket.on("newMessage", data => {
 });
 
 socket.on("justPlayed", data => {
-    d3.select("#h"+data.tile).attr("fill", data.color);
+    let {tile, coin} = data;
+    coin = parseInt(coin);
+    d3.select("#h"+tile).attr("fill", COLORS[coin%2]);
+    nextColor = COLORS[(coin+1)%2];
+    whosTurn.style.color = nextColor;
+    //TODO the color in this will be changed to be the player's name
+    whosTurn.innerHTML = "It's " + nextColor + "'s Turn!!!";
 });
 
 //implement
@@ -113,6 +123,8 @@ chat.value = ""; // erases the chat on reload / new tab
 document.getElementById("nick")
     .addEventListener("keypress", (e) => {
         if (e.key == "Enter") join();
-});
-inputMes.addEventListener("keypress", (e) => {
-    if (e.key == "Enter") send();});
+    });
+document.getElementById("inputMes")
+    .addEventListener("keypress", (e) => {
+        if (e.key == "Enter") send();
+    });

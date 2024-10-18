@@ -95,9 +95,9 @@ function genereDamier(nbLignes, nbColonnes, colors) {
       }
    }
    // because of how the loop goes over the points of a hexagon (starts at top and goes clockwise)
-   borderLinePoints[0].sort((a,b) => a[0]-b[0]);
+   borderLinePoints[0].sort((a,b) => a[0]-b[0]); // sort by x
    borderLinePoints[2].sort((a,b) => a[0]-b[0]);
-   borderLinePoints[3].sort((a,b) => a[1]-b[1]);
+   borderLinePoints[3].sort((a,b) => a[1]-b[1]); // sort by y
 
    for (let b in borderLinePoints) {
       let d = "";
@@ -107,6 +107,7 @@ function genereDamier(nbLignes, nbColonnes, colors) {
          else d += `L${x},${y}`;
       }
       
+      //! bug where clicking edge hexagon doesn't register the move if clicking it's corner (because these lines are a single shape places over the hexagon)
       d += /*`M${border[0][0]},${border[0][1]}`*/+"Z";
       placeShape(d, "transparent").attr("stroke", colors[b%2]).attr("stroke-width", "3");
    }
@@ -115,5 +116,6 @@ function genereDamier(nbLignes, nbColonnes, colors) {
 socket.on("createTable", data => {
    let { size, colors} = data;
    genereDamier(size, size, colors);
+   COLORS = colors; // sets the global variable in scriptClient.js to colors
    // console.log(creeHexagon(10));
 });

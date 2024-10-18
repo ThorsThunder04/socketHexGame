@@ -209,7 +209,7 @@ io.on("connection", (socket) => {
             if (gameTable[yT][xT] == -1) {
                 console.log(tile);
                 history.push([tile, colors[coin%2]]);
-                io.except("timeOut").emit("justPlayed", {"tile":tile, "color":colors[coin%2]});
+                io.except("timeOut").emit("justPlayed", {"tile":tile, "coin":coin});
                 
                 let sockets = await io.in("timeOut").fetchSockets();
 
