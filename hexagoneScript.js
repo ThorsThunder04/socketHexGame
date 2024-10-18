@@ -19,52 +19,6 @@ function calcMidPoint(pt1, pt2) {
       return [(x1+x2)/2, (y1+y2)/2];
 }
 
-/** 
- * ## Description
- * Used for making filtering coordinates for semi-hexagonal edges that will
- * be used to indicate to the players which edges they have to connect to win
- * 
- * [Reference Image](https://upload.wikimedia.org/wikipedia/commons/3/38/Hex-board-11x11-(2).jpg)
- * 
- * ## Paramaters 
- * @param {Number} edgeNum: 0: Top, 1: Right, 2: Bottom, 3: Left
- * @param {Number[][]} hexagonList: relative X,Y coords for hexagon of a certain radius (calculated with `creeHexagon(radius)`)
- * @returns {Number[][]} filtered hexagonList for given edge
- */
-function edgeHexagon(edgeNum, hexagonList) {
-
-   // clones the array, so that we aren't modifying the same object
-   hexL = Array.from(hexagonList); 
-
-   // TODO (thor): see if can be changed to math formulas with edgeNum (instead of 4 switch cases)
-   switch (edgeNum) {
-      case 0: // Top
-         //! need to determin formula for n, m and p from edgeNum (can maybe be grouped into 2 cases, group up 0,3 and 1,2)
-         //* hexL[n] = calcMidPoint(hexL[n%6], hexL((n+1)%6)) | when first param = n and second = n+1
-         //* hexL[m] = calcMidPoint(hexL[m%6], hexL((m-1)%6)) | when first param = m and second = m-1
-         hexL[1] = calcMidPoint(hexL[1], hexL[2]);
-         hexL[5] = calcMidPoint(hexL[5], hexL[4]);
-         //* hexL[p] = calcMidPoint(hexL[n], hexL[m]) | will allow to use this same point when dealing with corners
-         hexL.splice(0,1);
-         break;
-      case 1: // Right
-         hexL[0] = calcMidPoint(hexL[0], hexL[5]);
-         hexL[2] = calcMidPoint(hexL[2], hexL[3]);
-         hexL.splice(1,1);
-         break;
-      case 2: // Bottom
-         hexL[2] = calcMidPoint(hexL[1], hexL[2]);
-         hexL[4] = calcMidPoint(hexL[4], hexL[5]);
-         hexL.splice(3,1);
-         break;
-      case 3: // Left
-         hexL[3] = calcMidPoint(hexL[2], hexL[3]);
-         hexL[5] = calcMidPoint(hexL[5], hexL[0]);
-         hexL.splice(4,1);
-         break;
-   }
-   return hexL;
-}
 
 /**
  * ## Description
@@ -84,23 +38,8 @@ function placeShape(d, color) {
    return elt;
 }
 
-function makeDString(ligne, colonne, hexList, xFormula = 0, yFormula = 0) {
-   let d = "";
-   let x, y;
-   for (h in hexList) {
-      x = hexList[h][0] + (RAYON-DISTANCE)*(2+2*colonne) + (RAYON-DISTANCE)*ligne + RAYON + xFormula;
-      y = hexList[h][1] + DISTANCE*2 +(RAYON-DISTANCE*2)*(1+2*ligne) + RAYON + yFormula;
-      if (h == 0) {
-         d += `M${x},${y} `;
-      } else {
-         d += `L${x},${y} `;
-      }
-   }
-   d += "Z";
-   return d;
-}
 
-function genereDamier(nbLignes, nbColonnes) {
+function genereDamier(nbLignes, nbColonnes, colors) {
 
    d3.select("#field")
       .append("svg")
@@ -108,39 +47,36 @@ function genereDamier(nbLignes, nbColonnes) {
       .attr("height", 2*RAYON*nbLignes + 2*RAYON + "px");
 
    var hexagon = creeHexagon();
+   // index guide: 0: top, 1: right, 2:bottom, 3:left
+   let borderLinePoints = [[],[],[],[]];
    for (var ligne=0; ligne < nbLignes; ligne++) {
       for (var colonne=0; colonne < nbColonnes; colonne++) {
 
-         let d = "";
-         let x,y;
-
-         if (ligne == 0) { // load coloured rows for top
-            let edgeH = edgeHexagon(0, hexagon); // get cropped hexagons (they become pentagons)
-            // set offsets from main top row
-            let xOff = -RAYON + DISTANCE; 
-            let yOff = -RAYON*1.5;
-            // load the dString based off of these offsets and the new shape values
-            d = makeDString(ligne, colonne,
-                                 edgeH,
-                                 xOff,
-                                 yOff);
-            placeShape(d, "red"); // place a shape with this dString
-            if (colonne == nbColonnes-1) { // if on last row of line, place another shape 
-
-               d = makeDString(ligne, colonne+1, edgeH, xOff, yOff); 
-               placeShape(d, "red");
-            }
-         }
-
-
          d = "";
          for (h in hexagon) {
+            h = parseInt(h); // because for some dumb reason, h is not an integer..
             x = hexagon[h][0]+(RAYON-DISTANCE)*(2+2*colonne) + (RAYON-DISTANCE)*ligne + RAYON;
             y = DISTANCE*2 + hexagon[h][1]+(RAYON-DISTANCE*2)*(1+2*ligne) + RAYON;
             if (h == 0) {
                d += `M${x},${y} `;
             } else {
                d += `L${x},${y} `;
+            }
+            
+            // depending on which index of the hexagon corner point we are on, and which hexagon we are on in the table
+            // we log these points to an array of arrays that contain points to colour in each border line 
+            //* can be refactored with modulo 6, though it may become less understandable 
+            if (ligne == 0) {
+               if ([5,0,1].includes(h)) borderLinePoints[0].push([x,y]); // top of hexagon
+            }
+            if (colonne == nbColonnes-1) {
+               if ([0,1,2].includes(h)) borderLinePoints[1].push([x,y]); // right of hexagon
+            }
+            if (ligne == nbLignes-1) {
+               if ([2,3,4].includes(h)) borderLinePoints[2].push([x,y]); // bottom of hexagon
+            }
+            if (colonne == 0) {
+               if ([3,4,5].includes(h)) borderLinePoints[3].push([x,y]); // left of hexagon 
             }
          }
          d += "Z";
@@ -158,10 +94,26 @@ function genereDamier(nbLignes, nbColonnes) {
          );
       }
    }
+   // because of how the loop goes over the points of a hexagon (starts at top and goes clockwise)
+   borderLinePoints[0].sort((a,b) => a[0]-b[0]);
+   borderLinePoints[2].sort((a,b) => a[0]-b[0]);
+   borderLinePoints[3].sort((a,b) => a[1]-b[1]);
+
+   for (let b in borderLinePoints) {
+      let d = "";
+      for (let p in borderLinePoints[b]) {
+         let [ x, y ] = borderLinePoints[b][p];
+         if (p == 0) d += `M${x},${y}`;
+         else d += `L${x},${y}`;
+      }
+      
+      d += /*`M${border[0][0]},${border[0][1]}`*/+"Z";
+      placeShape(d, "transparent").attr("stroke", colors[b%2]).attr("stroke-width", "3");
+   }
 }
 
 socket.on("createTable", data => {
    let { size, colors} = data;
-   genereDamier(size, size);
+   genereDamier(size, size, colors);
    // console.log(creeHexagon(10));
 });
