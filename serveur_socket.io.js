@@ -1,7 +1,5 @@
 /* TODO (ema)
-- controls only visible for spectators
 - figure out what to do with the coin when player leaves mid party
-- figure out the joining/leaving stuff
 */
 
 const express = require('express');
@@ -187,6 +185,7 @@ io.on("connection", (socket) => {
         io.emit("newMessage", joinedUsers[index] + " left the party :(");
         joinedUsers.splice(index, 1);
         socketList.splice(index, 1);
+        io.emit("currentPlayers", joinedUsers);
     });
 
     socket.on("sentMessage", data => {

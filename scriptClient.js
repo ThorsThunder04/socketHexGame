@@ -44,7 +44,8 @@ function spectLive() {
 socket.on("currentPlayers", data => {
     if (data.length == 2 && bStart.getAttribute("disabled") != "disabled")
         joinButton.setAttribute("disabled", "disabled");
-    else if (bStart.getAttribute("disabled"))
+    else if (joinButton.getAttribute("disabled") == "disabled"
+    && leaveButton.getAttribute("disabled") == "disabled")
         joinButton.removeAttribute("disabled")
     playerList.innerHTML = "";
     console.log(data);
