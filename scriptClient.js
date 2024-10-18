@@ -2,7 +2,7 @@ let socket = io();
 
 let joinButton = document.getElementById("join");
 let leaveButton = document.getElementById("leave");
-const spectatorControls = [bStart, bBack, bForward, bLive];
+const SPECTATOR_CONTROLS = [bStart, bBack, bForward, bLive];
 
 function join() {
     console.log(nick.value + " joining the the party");
@@ -17,7 +17,7 @@ function leave() {
     joinButton.removeAttribute("disabled");
     playerList.innerHTML = "";
     sendMes.setAttribute("disabled", "disabled");
-    spectatorControls.map(e => e.removeAttribute("disabled"));
+    SPECTATOR_CONTROLS.map(e => e.removeAttribute("disabled"));
 
     socket.emit("playerLeave");
 }
@@ -57,7 +57,7 @@ socket.on("joinSuccess", () => {
     joinButton.setAttribute("disabled", "disabled");
     leaveButton.removeAttribute("disabled");
     sendMes.removeAttribute("disabled");
-    spectatorControls.map(e => e.setAttribute("disabled", "disabled"));
+    SPECTATOR_CONTROLS.map(e => e.setAttribute("disabled", "disabled"));
 });
 
 socket.on("joinFailed", data => {

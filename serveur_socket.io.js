@@ -200,7 +200,7 @@ io.on("connection", (socket) => {
     });
 
 
-    socket.on("selectionHexagon", data => {
+    socket.on("selectionHexagon", async function(data) {
         let tile = data;
 
         if (!hasWinner && socketList.includes(socket.id)
@@ -212,8 +212,11 @@ io.on("connection", (socket) => {
                 history.push([tile, colors[coin%2]]);
                 io.except("timeOut").emit("justPlayed", {"tile":tile, "color":colors[coin%2]});
                 
+                let sockets = await io.in("timeOut").fetchSockets();
+
+                // ! doesnt stop the incrementation if in timeOut
                 for (let sock of Object.keys(spectatorStates)) {
-                    if (!Object.keys(socket.rooms).includes("timeOut"))
+                    if (!sockets.some(s => s.id == sock))
                         spectatorStates[sock]++;
                 }
                 
