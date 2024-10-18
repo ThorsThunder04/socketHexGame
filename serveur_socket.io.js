@@ -1,5 +1,8 @@
 /* TODO (ema)
 - figure out what to do with the coin when player leaves mid party
+    - end game, popup saying player left
+- on joinFail - show user why they couldnt join
+- reset button - either after game end or both players agree
 */
 
 const express = require('express');
@@ -139,6 +142,14 @@ function dfs(arr, dims, root, player) {
     return (side1 && side2);
 }
 
+function leaving(socketID) {
+    let index = socketList.indexOf(socketID);
+    io.emit("newMessage", joinedUsers[index] + " left the party :(");
+    joinedUsers.splice(index, 1);
+    socketList.splice(index, 1);
+    io.emit("currentPlayers", joinedUsers);
+}
+
 io.on("connection", (socket) => {
     
     socket.emit("currentPlayers", joinedUsers);
@@ -156,7 +167,7 @@ io.on("connection", (socket) => {
         if (joinedUsers.length + 1 > nbJoueurs) {
             socket.emit("joinFailed", "Room Full");
         } else if (joinedUsers.includes(data)) {
-            socket.emit("joinFailed", "Player Already Joined");
+            socket.emit("joinFailed", "Player with same name already in party");
         } else {
             delete spectatorStates[socket.id];
             socketList.push(socket.id);
@@ -170,32 +181,23 @@ io.on("connection", (socket) => {
     });
 
     socket.on("playerLeave", () => {
-        let ind = socketList.indexOf(socket.id);
-        console.log(joinedUsers[ind] + " LEFT!");
-        io.emit("newMessage",joinedUsers[ind]+ " left the party :(");
-        joinedUsers.splice(ind, 1);
-        socketList.splice(ind, 1); 
-        io.emit("currentPlayers", joinedUsers);
+        leaving(socket.id);
+        spectatorStates[socket.id] = history.length - 1;
     });
 
     socket.on("disconnect", () => {
-        delete spectatorStates[socket.id];
-        if (!socketList.includes(socket.id)) return;
-        let index = socketList.indexOf(socket.id);
-        io.emit("newMessage", joinedUsers[index] + " left the party :(");
-        joinedUsers.splice(index, 1);
-        socketList.splice(index, 1);
-        io.emit("currentPlayers", joinedUsers);
+        if (!socketList.includes(socket.id)) {
+            delete spectatorStates[socket.id];;
+            return;
+        }
+        leaving(socket.id);
     });
 
     socket.on("sentMessage", data => {
-        // makes sure the player exists
-        if (socketList.includes(socket.id)) {
-            let formattedMessage = joinedUsers[socketList.indexOf(socket.id)] + ": " + data;
-            formattedMessage = ((msgParity%2) ? "%%%" : "###") + " " + formattedMessage; // kinda useless
-            msgParity++;
-            io.emit("newMessage", formattedMessage);
-        }
+        let formattedMessage = joinedUsers[socketList.indexOf(socket.id)] + ": " + data;
+        formattedMessage = ((msgParity%2) ? "%%%" : "###") + " " + formattedMessage; // kinda useless
+        msgParity++;
+        io.emit("newMessage", formattedMessage);
     });
 
 
@@ -207,15 +209,14 @@ io.on("connection", (socket) => {
             let yT = Math.floor(tile/wh);
             let xT = tile%wh;
             if (gameTable[yT][xT] == -1) {
-                console.log(tile);
+                //console.log(tile);
                 history.push([tile, colors[coin%2]]);
                 io.except("timeOut").emit("justPlayed", {"tile":tile, "coin":coin});
                 
-                let sockets = await io.in("timeOut").fetchSockets();
+                let timeOutClients = await io.in("timeOut").fetchSockets();
 
-                // ! doesnt stop the incrementation if in timeOut
                 for (let sock of Object.keys(spectatorStates)) {
-                    if (!sockets.some(s => s.id == sock))
+                    if (!timeOutClients.some(s => s.id == sock))
                         spectatorStates[sock]++;
                 }
                 
@@ -245,10 +246,8 @@ io.on("connection", (socket) => {
             case 0:
                 spectatorStates[socket.id] = -1;
                 freshTable = newGameTable(wh);
-                
-                if (!Object.keys(socket.rooms).includes("timeOut"))
-                    socket.join("timeOut");
-                
+                socket.join("timeOut");
+
                 socket.emit("loadGameTable", {
                     "table" : freshTable, 
                     "colors": colors});
@@ -256,16 +255,13 @@ io.on("connection", (socket) => {
             case 1:
                 if (spectatorStates[socket.id] == -1) return;
                 
-                if (!Object.keys(socket.rooms).includes("timeOut"))
-                    socket.join("timeOut");
-
                 socket.emit("newView", {
                     "goBack": true, 
                     "change": history[spectatorStates[socket.id]]
                     });
 
+                socket.join("timeOut");
                 spectatorStates[socket.id]--;
-                newIndex = spectatorStates[socket.id];
                 break;
             case 2:
                 if (spectatorStates[socket.id] == lastMove) return;
@@ -278,7 +274,7 @@ io.on("connection", (socket) => {
                 
                 socket.emit("newView", {
                     "goBack": false, 
-                    "change": history[spectatorStates[socket.id]]
+                    "change": history[newIndex]
                     });
                 break;
             case 3:
@@ -294,11 +290,12 @@ io.on("connection", (socket) => {
         // sets everything to defaults
         hasWinner = false;
         coin = 0;
-
+        for (let sock of Object.keys(spectatorStates)) {
+            spectatorStates[sock] = -1;
+        }
         gameTable = newGameTable(wh);
 
         // resets everyone's tables to be empty according to the server side gameTable
-        // TODO this also removes the "x IS THE WINNER" message client side (which should be done elsewhere really)
         io.emit("loadGameTable", {
             "table":gameTable,
             "colors":colors});
