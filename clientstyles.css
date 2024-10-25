@@ -14,10 +14,16 @@
 
 #winnerMessage {
     display: none;
-    position: absolute;
     z-index: 1;
-    margin-top: 50%;
+    position: absolute;
+    margin-top: 25%;
     background-color: black;
     color: white;
     font-size: 20pt;
+}
+
+#playerName {
+    font-size: 18pt;
+    font-style: italic;
+    display: none;
 }

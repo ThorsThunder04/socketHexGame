@@ -174,7 +174,7 @@ io.on("connection", (socket) => {
             joinedUsers.push(data);
             console.log(data + " JOINED!");
 
-            socket.emit("joinSuccess");
+            socket.emit("joinSuccess", [data, joinedUsers.length-1]); // username
             io.emit("currentPlayers", joinedUsers);
             io.emit("newMessage", data + " joined the party!");
         }

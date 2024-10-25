@@ -1,5 +1,6 @@
 /* (Thor)
  TODO make player colors work with css instead of hardcoding them to each element (would then just require changing a css class in an element)
+ TODO make it so that you can't join the game if your name is empty (string = "") or whitespace
 */
 let socket = io();
 
@@ -7,6 +8,8 @@ let joinButton = document.getElementById("join");
 let leaveButton = document.getElementById("leave");
 const SPECTATOR_CONTROLS = [bStart, bBack, bForward, bLive];
 let COLORS; // gets the colors from hexagoneScript.js createTable socket call
+let currUsername; // username string
+let colorIndex; // which color the player is (if they are a player)
 
 function join() {
     console.log(nick.value + " joining the the party");
@@ -22,6 +25,7 @@ function leave() {
     playerList.innerHTML = "";
     sendMes.setAttribute("disabled", "disabled");
     SPECTATOR_CONTROLS.map(e => e.removeAttribute("disabled"));
+    playerName.style.display = "none";
 
     socket.emit("playerLeave");
 }
@@ -49,8 +53,9 @@ socket.on("currentPlayers", data => {
     if (data.length == 2 && bStart.getAttribute("disabled") != "disabled")
         joinButton.setAttribute("disabled", "disabled");
     else if (joinButton.getAttribute("disabled") == "disabled"
-    && leaveButton.getAttribute("disabled") == "disabled")
+            && leaveButton.getAttribute("disabled") == "disabled")
         joinButton.removeAttribute("disabled")
+
     playerList.innerHTML = "";
     console.log(data);
     for (let c in data) {
@@ -58,11 +63,19 @@ socket.on("currentPlayers", data => {
     }
 })
 
-socket.on("joinSuccess", () => {
+socket.on("joinSuccess", data => {
+    [ currUsername, colorIndex ] = data;
+
+    // disable/enable buttons so that a player only uses buttons they're supposed to
     joinButton.setAttribute("disabled", "disabled");
     leaveButton.removeAttribute("disabled");
     sendMes.removeAttribute("disabled");
     SPECTATOR_CONTROLS.map(e => e.setAttribute("disabled", "disabled"));
+
+    // set html element displaying to the user their username and color
+    playerName.style.color = COLORS[colorIndex];
+    playerName.innerHTML = "You are " + currUsername;
+    playerName.style.display = "block";
 });
 
 socket.on("joinFailed", data => {
