@@ -49,19 +49,31 @@ function spectLive() {
     socket.emit("changeView", 3);
 }
 
+// displays a message saying who's it is depending on the coin's value
+function displayWhosTurn(coin) {
+    let playerColor = COLORS[coin%2];
+    whosTurn.style.color = playerColor;
+    //TODO the color in this will be changed to be the player's name
+    whosTurn.innerHTML = "It's " + playerColor + "'s Turn!!!";
+}
+
+function resetGame() {
+    socket.emit("resetGame");
+}
+
 socket.on("currentPlayers", data => {
     if (data.length == 2 && bStart.getAttribute("disabled") != "disabled")
         joinButton.setAttribute("disabled", "disabled");
     else if (joinButton.getAttribute("disabled") == "disabled"
             && leaveButton.getAttribute("disabled") == "disabled")
-        joinButton.removeAttribute("disabled")
+        joinButton.removeAttribute("disabled");
 
     playerList.innerHTML = "";
     console.log(data);
     for (let c in data) {
         playerList.innerHTML += data[c] + " ";
     }
-})
+});
 
 socket.on("joinSuccess", data => {
     [ currUsername, colorIndex ] = data;
@@ -76,6 +88,7 @@ socket.on("joinSuccess", data => {
     playerName.style.color = COLORS[colorIndex];
     playerName.innerHTML = "You are " + currUsername;
     playerName.style.display = "block";
+    displayWhosTurn(0); // both players are in the middle of joining, so the turn is still at 0
 });
 
 socket.on("joinFailed", data => {
@@ -113,10 +126,7 @@ socket.on("justPlayed", data => {
     let {tile, coin} = data;
     coin = parseInt(coin);
     d3.select("#h"+tile).attr("fill", COLORS[coin%2]);
-    nextColor = COLORS[(coin+1)%2];
-    whosTurn.style.color = nextColor;
-    //TODO the color in this will be changed to be the player's name
-    whosTurn.innerHTML = "It's " + nextColor + "'s Turn!!!";
+    displayWhosTurn(coin+1);
 });
 
 //implement

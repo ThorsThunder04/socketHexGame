@@ -288,6 +288,10 @@ io.on("connection", (socket) => {
 
     socket.on("resetGame", () => {
         // sets everything to defaults
+
+        //TODO* in addition to reset at the end, maybe make it so that both players can vote wether to reset or not
+        // treats cases: the game is finished; someone left, and so reset for when someone else joins
+        if (joinedUsers.length == 2 && !hasWinner) return;
         hasWinner = false;
         coin = 0;
         for (let sock of Object.keys(spectatorStates)) {
