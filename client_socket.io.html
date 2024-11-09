@@ -10,27 +10,35 @@
 </head>
 
 <body>
-   <input type="text" id="nick">
-   <button id="join" onclick="join()">join party!</button>
-   <button id="leave" onclick="leave()">leave :(</button>
+   <header>
+      <h1 id="gameName">Hex Game</h1>
+      <div id="joinDiv">
+         <input type="text" id="nick">
+         <button id="joinBut" onclick="join()">join party!</button>
+      </div>
+      <div id="inParty">
+         <div id="playerName"></div>
+         <button id="leaveBut" onclick="leave()">leave :(</button>
+         <button id="resetButton" onclick="resetGame()">Reset</button>
+      </div>
+   </header>
+   <hr/>
+
    <div id="playerList"></div>
-   <div id="spectatingButtons">
+   <div id="spectatorButtons">
       <button id="bStart" onclick="spectStart()">start</button>
       <button id="bBack" onclick="spectStepBack()">back</button>
       <button id="bForward" onclick="spectStepForward()">forward</button>
       <button id="bLive" onclick="spectLive()">follow game</button>
    </div>
-   <button id="resetButton" onclick="resetGame()">Reset</button>
-   <div id="playerName"></div>
    <div id="whosTurn"></div>
    <div id="winnerMessage"></div>
    <div id="field"></div>
    <div id="chatbox">
       <input type="text" id="inputMes">
       <button id="sendMes" onclick="send()">send message !</button>
-      <div> <textarea id="chat" rows="30" cols="40" style="resize:none" readonly></textarea>
-      </div>
-   </input>
+      <div><textarea id="chat" rows="30" cols="40" style="resize:none" readonly></textarea></div>
+   </div>
 </body>
 
 </html>

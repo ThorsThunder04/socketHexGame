@@ -2,7 +2,7 @@
 - figure out what to do with the coin when player leaves mid party
     - end game, popup saying player left
 - on joinFail - show user why they couldnt join
-- reset button - either after game end or both players agree
+- reset button - after game end || both players agree || player leaves 
 */
 
 const express = require('express');
@@ -163,7 +163,7 @@ io.on("connection", (socket) => {
     
     };
 
-    socket.on("newPlayer", data => {
+    socket.on("newPlayer",  async data => {
         if (joinedUsers.length + 1 > nbJoueurs) {
             socket.emit("joinFailed", "Room Full");
         } else if (joinedUsers.includes(data)) {
@@ -174,8 +174,10 @@ io.on("connection", (socket) => {
             joinedUsers.push(data);
             console.log(data + " JOINED!");
 
-            socket.emit("joinSuccess", [data, joinedUsers.length-1]); // username
             io.emit("currentPlayers", joinedUsers);
+            // auxiliary function to avoid an error caused by asynchronicity
+            await socket.timeout(1000).emitWithAck("waiting");
+            socket.emit("joinSuccess", [data, joinedUsers.length-1]); // username
             io.emit("newMessage", data + " joined the party!");
         }
     });

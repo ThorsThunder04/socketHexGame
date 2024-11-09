@@ -1,15 +1,35 @@
+header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
 #field {
     float: left;
     top: 20px;
-    position: relative;
+    width: 70%;
+}
+
+#inParty {
+    display: none;
+    float: right;
+    gap: 10px;
+}
+
+#joinDiv {
+    display: flex;
+    float: right;
+    gap: 10px;
 }
 
 #chatbox {
-    position: absolute;
+    position: relative;
     top: 30px;
     right: 20px;
     z-index: 100;
     float: right;
+    width: 30%;
 }
 
 #winnerMessage {
@@ -25,5 +45,9 @@
 #playerName {
     font-size: 18pt;
     font-style: italic;
-    display: none;
+    display: inline-flex;
+}
+
+.arrows {
+    display: inline;
 }

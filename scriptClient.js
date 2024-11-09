@@ -4,28 +4,23 @@
 */
 let socket = io();
 
-let joinButton = document.getElementById("join");
-let leaveButton = document.getElementById("leave");
-const SPECTATOR_CONTROLS = [bStart, bBack, bForward, bLive];
 let COLORS; // gets the colors from hexagoneScript.js createTable socket call
 let currUsername; // username string
 let colorIndex; // which color the player is (if they are a player)
 
 function join() {
     console.log(nick.value + " joining the the party");
-
     socket.emit("newPlayer", nick.value);
 }
 
 function leave() {
     console.log("leaving the party");
 
-    leaveButton.setAttribute("disabled", "disabled");
-    joinButton.removeAttribute("disabled");
     playerList.innerHTML = "";
     sendMes.setAttribute("disabled", "disabled");
-    SPECTATOR_CONTROLS.map(e => e.removeAttribute("disabled"));
-    playerName.style.display = "none";
+    inParty.style.display = "none";
+    joinDiv.style.display = "flex";
+    spectatorButtons.style.display = "block";
 
     socket.emit("playerLeave");
 }
@@ -51,6 +46,12 @@ function spectLive() {
 
 // displays a message saying who's it is depending on the coin's value
 function displayWhosTurn(coin) {
+    /* wip
+    if (coin != 0) {
+        document.getElementById("PN" + ((coin-1)%2)).innerHTML = "";
+    }
+    document.getElementById("PN" + (coin%2)).innerHTML = ">>";
+    */
     let playerColor = COLORS[coin%2];
     whosTurn.style.color = playerColor;
     //TODO the color in this will be changed to be the player's name
@@ -61,33 +62,31 @@ function resetGame() {
     socket.emit("resetGame");
 }
 
-socket.on("currentPlayers", data => {
-    if (data.length == 2 && bStart.getAttribute("disabled") != "disabled")
-        joinButton.setAttribute("disabled", "disabled");
-    else if (joinButton.getAttribute("disabled") == "disabled"
-            && leaveButton.getAttribute("disabled") == "disabled")
-        joinButton.removeAttribute("disabled");
+socket.on("waiting", (callback) => {
+    callback("got it!");
+}) 
 
-    playerList.innerHTML = "";
+socket.on("currentPlayers", data => {
+    playerList.innerHTML = "Current players:<br/>";
     console.log(data);
     for (let c in data) {
-        playerList.innerHTML += data[c] + " ";
+        playerList.innerHTML += (data[c] + " ");
+        //playerList.innerHTML += (`<div id=${'PN'+c} class="arrows"></div>${data[c]}<br/>`);
     }
 });
 
 socket.on("joinSuccess", data => {
     [ currUsername, colorIndex ] = data;
 
-    // disable/enable buttons so that a player only uses buttons they're supposed to
-    joinButton.setAttribute("disabled", "disabled");
-    leaveButton.removeAttribute("disabled");
+    // disable/enable buttons so that a player can only click buttons they're supposed to
     sendMes.removeAttribute("disabled");
-    SPECTATOR_CONTROLS.map(e => e.setAttribute("disabled", "disabled"));
+    spectatorButtons.style.display = "none"
 
     // set html element displaying to the user their username and color
     playerName.style.color = COLORS[colorIndex];
-    playerName.innerHTML = "You are " + currUsername;
-    playerName.style.display = "block";
+    playerName.innerHTML = "Hello " + currUsername;
+    inParty.style.display = "flex";
+    joinDiv.style.display = "none";
     displayWhosTurn(0); // both players are in the middle of joining, so the turn is still at 0
 });
 
@@ -137,7 +136,6 @@ socket.on("winner", data => {
     console.log(data);
 });
 
-leaveButton.setAttribute("disabled",  "disabled");
 sendMes.setAttribute("disabled", "disabled");
 chat.value = ""; // erases the chat on reload / new tab
 
