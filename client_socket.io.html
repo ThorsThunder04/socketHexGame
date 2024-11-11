@@ -7,11 +7,17 @@
    <script src="file/hexagoneScript.js" defer></script>
    <script src="https://d3js.org/d3.v7.min.js"></script>
    <link rel="stylesheet" type="text/css" href="file/clientstyles.css">
+
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
+
 </head>
 
 <body>
    <header>
-      <h1 id="gameName">Hex Game</h1>
+      <div id="playerList"></div>
+      <h1 id="gameName">Hex</h1>
       <div id="joinDiv">
          <input type="text" id="nick">
          <button id="joinBut" onclick="join()">join party!</button>
@@ -24,7 +30,6 @@
    </header>
    <hr/>
 
-   <div id="playerList"></div>
    <div id="spectatorButtons">
       <button id="bStart" onclick="spectStart()">start</button>
       <button id="bBack" onclick="spectStepBack()">back</button>

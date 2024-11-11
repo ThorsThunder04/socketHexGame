@@ -81,8 +81,9 @@ function genereDamier(nbLignes, nbColonnes, colors) {
          }
          d += "Z";
 
-         placeShape(d, "#C3DBDB")
+         placeShape(d, INIT_COLOR_HEX)
             .attr("id", "h"+(ligne*nbLignes+colonne))
+            //.attr("class", "hexagons")
             .on("click", function(d) {
                let selectedID = d3.select(this).attr('id');
                //console.log(d3.select(this));

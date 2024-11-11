@@ -182,16 +182,19 @@ io.on("connection", (socket) => {
         }
     });
 
+    // removes player from the game and puts them in the spectator list 
     socket.on("playerLeave", () => {
         leaving(socket.id);
         spectatorStates[socket.id] = history.length - 1;
     });
 
     socket.on("disconnect", () => {
+        // remove user from the spectator list if they werent playing
         if (!socketList.includes(socket.id)) {
             delete spectatorStates[socket.id];;
             return;
         }
+        // if the disconnecting user was playing, makes them leave the game  
         leaving(socket.id);
     });
 
@@ -293,7 +296,8 @@ io.on("connection", (socket) => {
 
         //TODO* in addition to reset at the end, maybe make it so that both players can vote wether to reset or not
         // treats cases: the game is finished; someone left, and so reset for when someone else joins; a spectator is trying to reset
-        if (joinedUsers.length == 2 && !hasWinner || Object.keys(spectatorStates).includes(socket.id)) return;
+        //!disabled for testing
+        //if (joinedUsers.length == 2 && !hasWinner || Object.keys(spectatorStates).includes(socket.id)) return;
         hasWinner = false;
         coin = 0;
         for (let sock of Object.keys(spectatorStates)) {

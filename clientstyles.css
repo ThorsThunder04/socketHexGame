@@ -1,26 +1,89 @@
-header {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+:root{
+    --magenta: rgb(172, 11, 172);
 }
 
-#field {
-    float: left;
-    top: 20px;
-    width: 70%;
+html {
+    background-color: #202631;
+    color: teal;
+}
+
+body, button, input {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+input, #chat {
+    border: 0.5px solid;
+    background-color: #195151;
+    border-radius: 3px;
+    color: rgb(181, 225, 232);
+}
+
+header {
+    display: inline-grid;
+    grid-template-columns: repeat(7, 14.29%);
+    align-items: center;
+    width: 100%;
+}
+
+h1 {
+    font-family: "Audiowide", sans-serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 90px;
+    position: relative;
+    left: 12%;
+    grid-column: 2 / 6;
+    justify-self: center;
+    margin: 0px;
+}
+
+button {
+    background-color: var(--magenta);
+    box-shadow: 1px 1px;
+    color: #fbd0f0;
+    cursor: pointer;
+    border: none;
+    border-radius: 3px;
+}
+
+/* path.hexagons {
+    fill: #7a8a8a;
+} */
+
+#joinDiv {
+    display: flex;
+    float: right;
+    gap: 10px;
+    grid-column: 6 / 8;
+    justify-self: right;
 }
 
 #inParty {
     display: none;
     float: right;
     gap: 10px;
+    grid-column: 6 / 8;
+    justify-self: right;
 }
 
-#joinDiv {
-    display: flex;
-    float: right;
-    gap: 10px;
+#playerName {
+    font-size: 18pt;
+    font-style: italic;
+    display: inline-flex;
+}
+
+#playerList {
+    grid-column: 1;
+}
+
+.arrows {
+    display: inline;
+}
+
+#field {
+    float: left;
+    top: 20px;
+    width: 70%;
 }
 
 #chatbox {
@@ -32,6 +95,10 @@ header {
     width: 30%;
 }
 
+#chat {
+    margin-top: 5px;
+}
+
 #winnerMessage {
     display: none;
     z-index: 1;
@@ -40,14 +107,4 @@ header {
     background-color: black;
     color: white;
     font-size: 20pt;
-}
-
-#playerName {
-    font-size: 18pt;
-    font-style: italic;
-    display: inline-flex;
-}
-
-.arrows {
-    display: inline;
 }

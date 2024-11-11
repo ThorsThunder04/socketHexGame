@@ -7,6 +7,7 @@ let socket = io();
 let COLORS; // gets the colors from hexagoneScript.js createTable socket call
 let currUsername; // username string
 let colorIndex; // which color the player is (if they are a player)
+const INIT_COLOR_HEX = "#293c3c";
 
 function join() {
     console.log(nick.value + " joining the the party");
@@ -44,18 +45,16 @@ function spectLive() {
     socket.emit("changeView", 3);
 }
 
-// displays a message saying who's it is depending on the coin's value
-function displayWhosTurn(coin) {
-    /* wip
+// displays a message saying whose turn it is depending on the coin's value
+function displayWhoseTurn(coin) {
     if (coin != 0) {
         document.getElementById("PN" + ((coin-1)%2)).innerHTML = "";
     }
-    document.getElementById("PN" + (coin%2)).innerHTML = ">>";
-    */
-    let playerColor = COLORS[coin%2];
-    whosTurn.style.color = playerColor;
-    //TODO the color in this will be changed to be the player's name
-    whosTurn.innerHTML = "It's " + playerColor + "'s Turn!!!";
+    let next = document.getElementById("PN" + (coin%2));
+    // TODO make the whole name + arrows light up 
+    // currently cant do it bc of the same issue as in the closest comment down
+    next.innerHTML = ">>"
+    next.style.color = COLORS[coin%2];
 }
 
 function resetGame() {
@@ -70,8 +69,11 @@ socket.on("currentPlayers", data => {
     playerList.innerHTML = "Current players:<br/>";
     console.log(data);
     for (let c in data) {
-        playerList.innerHTML += (data[c] + " ");
-        //playerList.innerHTML += (`<div id=${'PN'+c} class="arrows"></div>${data[c]}<br/>`);
+        //! bug for the first player when the second player connects,
+        // first person cant see whose turn it is
+        //console.log(data[c], document.getElementById(`${data[c]}`));
+        if (document.getElementById(data[c]) == null)
+            playerList.innerHTML += (`<div id=${data[c]}><div id=${'PN'+c} class="arrows"></div> ${data[c]}</div>`);
     }
 });
 
@@ -84,10 +86,10 @@ socket.on("joinSuccess", data => {
 
     // set html element displaying to the user their username and color
     playerName.style.color = COLORS[colorIndex];
-    playerName.innerHTML = "Hello " + currUsername;
+    playerName.innerHTML = "Hello, " + currUsername;
     inParty.style.display = "flex";
     joinDiv.style.display = "none";
-    displayWhosTurn(0); // both players are in the middle of joining, so the turn is still at 0
+    displayWhoseTurn(0); // both players are in the middle of joining, so the turn is still at 0
 });
 
 socket.on("joinFailed", data => {
@@ -103,7 +105,7 @@ socket.on("loadGameTable", data => {
             if (table[y][x] !== -1) {
                 d3.select("#h" + id).attr("fill", colors[table[y][x]]);
             } else {
-                d3.select("#h" + id).attr("fill", "#C3DBDB");
+                d3.select("#h" + id).attr("fill", INIT_COLOR_HEX);
             }
         }
     }
@@ -112,7 +114,7 @@ socket.on("loadGameTable", data => {
 
 socket.on("newView", data => {
     if (data.goBack) {
-        d3.select("#h" + data.change[0]).attr("fill", "#C3DBDB");
+        d3.select("#h" + data.change[0]).attr("fill", INIT_COLOR_HEX);
     } else
         d3.select("#h" + data.change[0]).attr("fill", data.change[1]);
 });
@@ -125,7 +127,7 @@ socket.on("justPlayed", data => {
     let {tile, coin} = data;
     coin = parseInt(coin);
     d3.select("#h"+tile).attr("fill", COLORS[coin%2]);
-    displayWhosTurn(coin+1);
+    displayWhoseTurn(coin+1);
 });
 
 //implement
