@@ -100,17 +100,16 @@ function genereDamier(nbLignes, nbColonnes, colors) {
    borderLinePoints[2].sort((a,b) => a[0]-b[0]);
    borderLinePoints[3].sort((a,b) => a[1]-b[1]); // sort by y
 
+   // draw the coloured borders
    for (let b in borderLinePoints) {
-      let d = "";
-      for (let p in borderLinePoints[b]) {
-         let [ x, y ] = borderLinePoints[b][p];
-         if (p == 0) d += `M${x},${y}`;
-         else d += `L${x},${y}`;
+
+      for (let i = 0; i < borderLinePoints[b].length-1; i++) {
+         let [ x1, y1 ] = borderLinePoints[b][i];
+         let [ x2, y2 ] = borderLinePoints[b][i+1];
+
+         d = `M${x1},${y1} L${x2},${y2} Z`;
+         placeShape(d, "transparent").attr("stroke", colors[b%2]).attr("stroke-width", "3");
       }
-      
-      //! bug where clicking edge hexagon doesn't register the move if clicking it's corner (because these lines are a single shape places over the hexagon)
-      d += /*`M${border[0][0]},${border[0][1]}`*/+"Z";
-      placeShape(d, "transparent").attr("stroke", colors[b%2]).attr("stroke-width", "3");
    }
 }
 
