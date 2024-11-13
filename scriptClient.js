@@ -1,6 +1,5 @@
 /* (Thor)
  TODO make player colors work with css instead of hardcoding them to each element (would then just require changing a css class in an element)
- TODO make it so that you can't join the game if your name is empty (string = "") or whitespace
 */
 let socket = io();
 
@@ -10,6 +9,11 @@ let colorIndex; // which color the player is (if they are a player)
 const INIT_COLOR_HEX = "#293c3c";
 
 function join() {
+    // check to avoid whitespace/empty username (is also checked server side)
+    if (nick.value.trim() == "") {
+        console.log("Must give none whitespace username to join the game");
+        return;
+    }
     console.log(nick.value + " joining the the party");
     socket.emit("newPlayer", nick.value);
 }
