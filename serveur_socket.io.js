@@ -310,6 +310,7 @@ io.on("connection", (socket) => {
             spectatorStates[sock] = -1;
         }
         gameTable = newGameTable(wh);
+        history = [];
 
         // resets everyone's tables to be empty according to the server side gameTable
         io.emit("loadGameTable", {
