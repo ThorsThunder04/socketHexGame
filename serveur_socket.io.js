@@ -163,10 +163,13 @@ io.on("connection", (socket) => {
     };
 
     socket.on("newPlayer",  async data => {
+        data = data.trim(); // removes leading and trailing whitespace
         if (joinedUsers.length + 1 > nbJoueurs) {
             socket.emit("joinFailed", "Room Full");
         } else if (joinedUsers.includes(data)) {
             socket.emit("joinFailed", "Player with same name already in party");
+        } else if (data == "") {
+            socket.emit("joinFailed", "Username can't be composed of just whitespace");
         } else {
             delete spectatorStates[socket.id];
             socketList.push(socket.id);
