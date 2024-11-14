@@ -81,7 +81,7 @@ function genereDamier(nbLignes, nbColonnes, colors) {
          }
          d += "Z";
 
-         placeShape(d, INIT_COLOR_HEX)
+         placeShape(d, INIT_COLOR_HEX) //defined in scriptClient.js
             .attr("id", "h"+(ligne*nbLignes+colonne))
             //.attr("class", "hexagons")
             .on("click", function(d) {

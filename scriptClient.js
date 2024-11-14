@@ -93,6 +93,7 @@ socket.on("joinSuccess", data => {
 });
 
 socket.on("joinFailed", data => {
+    alert("Couldn't join. " + data);
     console.log(data);
 });
 

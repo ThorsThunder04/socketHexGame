@@ -1,7 +1,6 @@
 /* TODO (ema)
 - figure out what to do with the coin when player leaves mid party
     - end game, popup saying player left
-- on joinFail - show user why they couldnt join
 - reset button - after game end || both players agree || player leaves 
 */
 
