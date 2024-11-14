@@ -76,6 +76,7 @@ function filterIndexErr(pos, relativePositions, dims) {
 	for (let rPos of relativePositions) {
 		let [ ny, nx ] = rPos;
 
+        // check if the coordinates with the applied offsets are still within bounds
 		if (((y+ny) >= 0) && ((y+ny) < dims) &&
             ((x+nx) >= 0) && ((x+nx) < dims)) 
         {
@@ -164,12 +165,15 @@ io.on("connection", (socket) => {
 
     socket.on("newPlayer",  async data => {
         data = data.trim(); // removes leading and trailing whitespace
+
         if (joinedUsers.length + 1 > nbJoueurs) {
             socket.emit("joinFailed", "Room Full");
         } else if (joinedUsers.includes(data)) {
             socket.emit("joinFailed", "Player with same name already in party");
         } else if (data == "") {
             socket.emit("joinFailed", "Username can't be composed of just whitespace");
+        } else if (data.length > 24) {
+            socket.emit("joinFailed", "Username can't be longer than 24 characters")
         } else {
             delete spectatorStates[socket.id];
             socketList.push(socket.id);
