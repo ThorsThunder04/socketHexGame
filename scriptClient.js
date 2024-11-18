@@ -1,6 +1,3 @@
-/* (Thor)
- TODO make player colors work with css instead of hardcoding them to each element (would then just require changing a css class in an element)
-*/
 let socket = io();
 
 let COLORS; // gets the colors from hexagoneScript.js createTable socket call
@@ -73,9 +70,9 @@ socket.on("currentPlayers", data => {
     playerList.innerHTML = "Current players:<br/>";
     console.log(data);
     for (let c in data) {
-        //! bug for the first player when the second player connects,
-        // first person cant see whose turn it is
-        //console.log(data[c], document.getElementById(`${data[c]}`));
+
+        // place username into field where it will be displayed
+        //! Should idealy be revisited slightly to avoid XSS vulnerability (since data[c] is direct user input)
         if (document.getElementById(data[c]) == null) {
             playerList.innerHTML += (`<div id=${data[c]}><div id=${'PN'+c} class="arrows"></div> ${data[c]}</div>`);
             displayWhoseTurn(0); // both players are in the middle of joining, so the turn is still at 0

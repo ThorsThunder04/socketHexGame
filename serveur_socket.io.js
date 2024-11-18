@@ -327,17 +327,16 @@ io.on("connection", (socket) => {
                 socket.emit("loadGameTable", {
                     "table": gameTable, 
                     "colors": colors});
-            }
-        });
+        }
+    });
 
     socket.on("resetGame", () => {
         // sets everything to defaults
 
         //TODO* in addition to reset at the end, maybe make it so that both players can vote wether to reset or not
         // treats cases: the game is finished; someone left, and so reset for when someone else joins; a spectator is trying to reset
-        //!disabled for testing
         if (joinedUsers.length == 2 && !hasWinner || Object.keys(spectatorStates).includes(socket.id)) return;
         resetGame();
 
-    })
+    });
 });
