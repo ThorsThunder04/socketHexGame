@@ -97,6 +97,18 @@ function genereDamier(nbLignes, nbColonnes, colors) {
    borderLinePoints[2].sort((a,b) => a[0]-b[0]);
    borderLinePoints[3].sort((a,b) => a[1]-b[1]); // sort by y
 
+
+   // halfs the colors in top right and bottom left corners
+   borderLinePoints[1][0] = calcMidPoint(
+      borderLinePoints[0][borderLinePoints[1].length-1],
+      borderLinePoints[1][0]
+   );
+
+   borderLinePoints[3][borderLinePoints[3].length-1] = calcMidPoint(
+      borderLinePoints[3][borderLinePoints[3].length-1],
+      borderLinePoints[2][0]
+   );
+
    // draw the coloured borders
    for (let b in borderLinePoints) { // for each border
 
