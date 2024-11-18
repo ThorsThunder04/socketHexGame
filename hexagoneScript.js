@@ -41,10 +41,14 @@ function placeShape(d, color) {
 
 function genereDamier(nbLignes, nbColonnes, colors) {
 
+   let width = 2*RAYON*nbColonnes + RAYON*(nbLignes-1) + 2*RAYON;
+   let height = 2*RAYON*nbLignes + 2*RAYON;
+
    d3.select("#field")
       .append("svg")
-      .attr("width", 2*RAYON*nbColonnes + RAYON*(nbLignes-1) + 2*RAYON + "px")
-      .attr("height", 2*RAYON*nbLignes + 2*RAYON + "px");
+      .attr("width", "100%")
+      .attr("height", "auto")
+      .attr("viewBox", "0 0 " + width.toString() + " " + height.toString());
 
    var hexagon = creeHexagon();
    // index guide: 0: top, 1: right, 2:bottom, 3:left

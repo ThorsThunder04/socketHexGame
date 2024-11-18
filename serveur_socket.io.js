@@ -1,7 +1,5 @@
 /* TODO (ema)
-- figure out what to do with the coin when player leaves mid party
-    - end game, popup saying player left
-- reset button - after game end || both players agree || player leaves 
+- make long name not break the inParty div
 */
 
 const express = require('express');

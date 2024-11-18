@@ -21,7 +21,7 @@ function leave() {
     playerList.innerHTML = "";
     sendMes.setAttribute("disabled", "disabled");
     inParty.style.display = "none";
-    joinDiv.style.display = "flex";
+    joinDiv.style.display = "block";
     spectatorButtons.style.display = "block";
 
     socket.emit("playerLeave");
@@ -91,7 +91,7 @@ socket.on("joinSuccess", data => {
     // set html element displaying to the user their username and color
     playerName.style.color = COLORS[colorIndex];
     playerName.innerHTML = "Hello, " + currUsername;
-    inParty.style.display = "flex";
+    inParty.style.display = "block";
     joinDiv.style.display = "none";
 });
 
@@ -156,7 +156,7 @@ socket.on("winner", data => {
 });
 
 sendMes.setAttribute("disabled", "disabled");
-chat.value = ""; // erases the chat on reload / new tab
+// chat.value = ""; // erases the chat on reload / new tab
 
 
 // So that hitting Enter in input field automatically presses the button
