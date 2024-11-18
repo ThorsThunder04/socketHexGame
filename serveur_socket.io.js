@@ -142,7 +142,15 @@ function dfs(arr, dims, root, player) {
     return (side1 && side2);
 }
 
-function sendChat(content, type, user = undefined) {
+/**
+ * Sends a message to all of the client's chat boxes
+ * 
+ * @param {String} content: The content of the message being sent 
+ * @param {String} type: the type of message being sent. Takes values: sysMsg|userMsg|joinMsg|leaveMsg (represents CSS class names)
+ * @param {String} user: username of person sending message. Only ever used if `type` is "userMsg" 
+ */
+function sendChat(content, type, user = undefined) { 
+    //? Would there be any reason for us to maybe add an option to send a message to an individual client?
     io.emit("newMessage", [content, type, numChats, user]);
     numChats++;
 }
