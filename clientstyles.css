@@ -11,7 +11,7 @@ body, button, input {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
-input, #chat {
+input, #chatbox {
     border: 0.5px solid;
     background-color: #195151;
     border-radius: 3px;
@@ -86,18 +86,61 @@ button {
     width: 70%;
 }
 
-#chatbox {
+/* The parent div of everything chat related */
+#chat {
     position: relative;
     top: 30px;
     right: 20px;
     z-index: 100;
     float: right;
-    width: 30%;
+    /* width: 30%; */
 }
 
-#chat {
-    margin-top: 5px;
+#inputMes {
+    width: 30ch;
 }
+
+/* Where the actual message appeaer */
+#chatbox {
+    margin-top: 5px;
+    width: 32ch;
+    height: 30em;
+    overflow: scroll;
+    background-color:grey;
+    color: black;
+}
+
+/* The div that the contents of a single message is in */
+.chatMessage {
+    width: inherit;
+    height: auto;
+    border-width: 1px;
+    border-color: black;
+}
+/* Just style for a player's username */
+.chatUsername {
+    text-decoration: solid underline;
+    font-weight: bold;
+    padding-right: 0.25ch;
+}
+
+/* different styles for types of messages */
+.userMsg {
+    background-color: rgb(104, 104, 104)
+}
+.sysMsg {
+    background-color: rgb(242, 192, 12);
+}
+.joinMsg {
+    background-color: palegreen;
+}
+.leaveMsg {
+    background-color: palevioletred;
+}
+.dimmedMsg {
+    filter: brightness(85%);
+}
+
 
 #winnerMessage {
     display: none;

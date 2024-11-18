@@ -124,7 +124,20 @@ socket.on("newView", data => {
 });
 
 socket.on("newMessage", data => {
-    chat.value += ( data + "\n");
+    let [ msgContent, msgType, msgIDNum, msgUser] = data; 
+    let dim = (msgIDNum%2 != 0) ? "dimmedMsg" : ""; // dim if message has odd number ID
+    let preparedMessage = `<div class="chatMessage ${msgType} ${dim}">`;
+    if (msgType == "userMsg" && msgUser != undefined) {
+        preparedMessage += `<span class="chatUsername">${msgUser}</span>`;
+    }
+    let messageID = "m" + msgIDNum;
+    preparedMessage += `<div id="${messageID}"></div></div>`;
+
+    // we separate these two so that there can't be an XSS attack where someone
+    // sends code in through the chat box (which would be sent to every client, even spectators)
+    //TODO since new message appear at top, if you are scrolled down and someone sends a message, everything shifts down. See if we can cancel this shift when scrolled downwards
+    chatbox.innerHTML = preparedMessage + chatbox.innerHTML; // new chats will always be at top
+    document.getElementById(messageID).textContent = msgContent;
 });
 
 socket.on("justPlayed", data => {

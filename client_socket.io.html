@@ -40,10 +40,21 @@
    <div id="whosTurn"></div>
    <div id="winnerMessage"></div>
    <div id="field"></div>
-   <div id="chatbox">
+
+   <div id="chat">
       <input type="text" id="inputMes">
-      <button id="sendMes" onclick="send()">send message !</button>
-      <div><textarea id="chat" rows="30" cols="40" style="resize:none" readonly></textarea></div>
+      <button id="sendMes" onclick="send()">Send!</button>
+      <!-- <div><textarea id="chat" rows="30" cols="40" style="resize:none" readonly></textarea></div> -->
+      <div id="chatbox">
+
+         <!--* these are example messages for testing css -->
+         <div class="chatMessage userMsg">
+            <span class="chatUsername">Fish:</span> <div id="m1">Hello opiwef fjjj we  eee there sir bwabwabwa</div>
+         </div>
+         <div class="chatMessage userMsg dimmedMsg">
+            <span class="chatUsername">shark:</span> <div id="m2">Stroke much???</div>
+         </div>
+      </div>
    </div>
 </body>
 

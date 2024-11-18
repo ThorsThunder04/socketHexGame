@@ -25,7 +25,7 @@ let socketList = [];
 //form of spectatorStates: {socket.id: moveBeingViewed};
 let spectatorStates = {};
 let nbJoueurs = 2;
-let msgParity = 0; // just for differentiating messages
+let numChats = 0;
 let hasWinner = false;
 let coin = 0;
 const wh = 6;
@@ -142,6 +142,11 @@ function dfs(arr, dims, root, player) {
     return (side1 && side2);
 }
 
+function sendChat(content, type, user = undefined) {
+    io.emit("newMessage", [content, type, numChats, user]);
+    numChats++;
+}
+
 function resetGame() {
     hasWinner = false;
     coin = 0;
@@ -162,7 +167,7 @@ function resetGame() {
 
 function leaving(socketID) {
     let index = socketList.indexOf(socketID);
-    io.emit("newMessage", joinedUsers[index] + " left the party :(");
+    sendChat(joinedUsers[index] + " left the party :(", "leaveMsg");
     joinedUsers.splice(index, 1);
     socketList.splice(index, 1);
     io.emit("currentPlayers", joinedUsers);
@@ -176,8 +181,8 @@ function leaving(socketID) {
 
 io.on("connection", (socket) => {
     
-    socket.emit("currentPlayers", joinedUsers);
     socket.emit("createTable", {size: wh, colors: colors});
+    socket.emit("currentPlayers", joinedUsers);
     spectatorStates[socket.id] = history.length - 1;
 
     // loads the table for them if they are spectating and there is already a game
@@ -208,7 +213,7 @@ io.on("connection", (socket) => {
             // auxiliary function to avoid an error caused by asynchronicity
             await socket.timeout(1000).emitWithAck("waiting");
             socket.emit("joinSuccess", [data, joinedUsers.length-1]); // username
-            io.emit("newMessage", data + " joined the party!");
+            sendChat(data + " joined the party!", "joinMsg");
 
             // we want to reset the previous game once a new player joins to play
             if (coin > 0) {
@@ -233,11 +238,9 @@ io.on("connection", (socket) => {
         leaving(socket.id);
     });
 
-    socket.on("sentMessage", data => {
-        let formattedMessage = joinedUsers[socketList.indexOf(socket.id)] + ": " + data;
-        formattedMessage = ((msgParity%2) ? "%%%" : "###") + " " + formattedMessage; // kinda useless
-        msgParity++;
-        io.emit("newMessage", formattedMessage);
+    socket.on("sentMessage", msgContent => {
+        let username = joinedUsers[socketList.indexOf(socket.id)];
+        sendChat(msgContent, "userMsg", username);
     });
 
 
@@ -279,6 +282,8 @@ io.on("connection", (socket) => {
             io.emit("winner", {
                 "winner": joinedUsers[w],
                 "color": colors[w]}); 
+
+            sendChat(joinedUsers[w] + " IS THE WINNER!!!", "sysMsg");
         }
     });
 
