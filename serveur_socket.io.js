@@ -30,7 +30,7 @@ let hasWinner = false;
 let coin = 0;
 const wh = 6;
 const colors = ["teal", "rgb(189 8 189)"];
-let history = [];
+let history = []; // of form [[y*wh + x, color],...]
 let gameTable = [];
 for (let i = 0; i < wh; i++) {
     let a = [];
@@ -142,12 +142,36 @@ function dfs(arr, dims, root, player) {
     return (side1 && side2);
 }
 
+function resetGame() {
+    hasWinner = false;
+    coin = 0;
+    // set all spectators to the beginning of the new game
+    for (let sock of Object.keys(spectatorStates)) {
+        spectatorStates[sock] = -1;
+    }
+    gameTable = newGameTable(wh);
+    history = [];
+
+    // resets everyone's tables to be empty according to the server side gameTable
+    io.emit("loadGameTable", {
+        "table":gameTable,
+        "colors":colors
+    });
+
+}
+
 function leaving(socketID) {
     let index = socketList.indexOf(socketID);
     io.emit("newMessage", joinedUsers[index] + " left the party :(");
     joinedUsers.splice(index, 1);
     socketList.splice(index, 1);
     io.emit("currentPlayers", joinedUsers);
+
+    // if the player who left was at index 0, we send a message to the remaining player, who's session
+    // gets reset as if they were player 0 in the previous session (all this just fixes color issues)
+    if (index == 0) {
+        io.to(socketList[0]).emit("joinSuccess", [joinedUsers[0], joinedUsers.length-1]);
+    }
 }
 
 io.on("connection", (socket) => {
@@ -185,6 +209,11 @@ io.on("connection", (socket) => {
             await socket.timeout(1000).emitWithAck("waiting");
             socket.emit("joinSuccess", [data, joinedUsers.length-1]); // username
             io.emit("newMessage", data + " joined the party!");
+
+            // we want to reset the previous game once a new player joins to play
+            if (coin > 0) {
+                resetGame();
+            }
         }
     });
 
@@ -215,8 +244,11 @@ io.on("connection", (socket) => {
     socket.on("selectionHexagon", async function(data) {
         let tile = data;
 
-        if (!hasWinner && socketList.includes(socket.id)
-        && socketList.indexOf(socket.id) === (coin % 2)) {
+        if (!hasWinner 
+            && socketList.includes(socket.id)
+            && socketList.indexOf(socket.id) === (coin % 2)
+            && socketList.length == 2) {
+
             let yT = Math.floor(tile/wh);
             let xT = tile%wh;
             if (gameTable[yT][xT] == -1) {
@@ -241,6 +273,7 @@ io.on("connection", (socket) => {
                 }
             }                 
         }
+
         if (hasWinner) {
             let w = coin%2;
             io.emit("winner", {
@@ -303,19 +336,8 @@ io.on("connection", (socket) => {
         //TODO* in addition to reset at the end, maybe make it so that both players can vote wether to reset or not
         // treats cases: the game is finished; someone left, and so reset for when someone else joins; a spectator is trying to reset
         //!disabled for testing
-        //if (joinedUsers.length == 2 && !hasWinner || Object.keys(spectatorStates).includes(socket.id)) return;
-        hasWinner = false;
-        coin = 0;
-        for (let sock of Object.keys(spectatorStates)) {
-            spectatorStates[sock] = -1;
-        }
-        gameTable = newGameTable(wh);
-        history = [];
-
-        // resets everyone's tables to be empty according to the server side gameTable
-        io.emit("loadGameTable", {
-            "table":gameTable,
-            "colors":colors});
+        if (joinedUsers.length == 2 && !hasWinner || Object.keys(spectatorStates).includes(socket.id)) return;
+        resetGame();
 
     })
 });

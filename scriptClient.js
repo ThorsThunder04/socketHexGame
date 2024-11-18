@@ -76,8 +76,11 @@ socket.on("currentPlayers", data => {
         //! bug for the first player when the second player connects,
         // first person cant see whose turn it is
         //console.log(data[c], document.getElementById(`${data[c]}`));
-        if (document.getElementById(data[c]) == null)
+        if (document.getElementById(data[c]) == null) {
             playerList.innerHTML += (`<div id=${data[c]}><div id=${'PN'+c} class="arrows"></div> ${data[c]}</div>`);
+            displayWhoseTurn(0); // both players are in the middle of joining, so the turn is still at 0
+        }
+
     }
 });
 
@@ -93,7 +96,6 @@ socket.on("joinSuccess", data => {
     playerName.innerHTML = "Hello, " + currUsername;
     inParty.style.display = "flex";
     joinDiv.style.display = "none";
-    displayWhoseTurn(0); // both players are in the middle of joining, so the turn is still at 0
 });
 
 socket.on("joinFailed", data => {
