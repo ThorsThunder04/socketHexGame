@@ -26,7 +26,7 @@ let nbJoueurs = 2;
 let numChats = 0;
 let hasWinner = false;
 let coin = 0;
-const wh = 6;
+const wh = 3;
 const colors = ["teal", "rgb(189 8 189)"];
 let history = []; // of form [[y*wh + x, color],...]
 let gameTable = [];
@@ -287,7 +287,7 @@ io.on("connection", (socket) => {
             let w = coin%2;
             io.emit("winner", {
                 "winner": joinedUsers[w],
-                "color": colors[w]}); 
+                "playerNb": w}); 
 
             sendChat(joinedUsers[w] + " IS THE WINNER!!!", "sysMsg");
         }
@@ -295,7 +295,6 @@ io.on("connection", (socket) => {
 
 //data: 0 (beginning) | 1 (step back) | 2 (step forward) | 3 (live)
     socket.on("changeView", data => {
-        let newIndex;
         let lastMove = history.length - 1;
         switch(data) {
             case 0:
@@ -322,7 +321,7 @@ io.on("connection", (socket) => {
                 if (spectatorStates[socket.id] == lastMove) return;
                 
                 spectatorStates[socket.id]++;
-                newIndex = spectatorStates[socket.id];
+                let newIndex = spectatorStates[socket.id];
                 
                 if (newIndex == lastMove) // player up to date
                     socket.leave("timeOut");    

@@ -3,7 +3,7 @@ let socket = io();
 let COLORS; // gets the colors from hexagoneScript.js createTable socket call
 let currUsername; // username string
 let colorIndex; // which color the player is (if they are a player)
-const INIT_COLOR_HEX = "#293c3c";
+const INIT_COLOR_HEX = "#293c3c"; // color of the hexagon tile at the start of the game
 
 function join() {
     // check to avoid whitespace/empty username (is also checked server side)
@@ -101,8 +101,13 @@ socket.on("joinFailed", data => {
 });
 
 socket.on("loadGameTable", data => {
+    // reset after a finished game
+    if (winnerContainer.style.display == "flex") {
+        winnerContainer.style.display == "none";
+        greyOut.style.display = "none";
+    }
+
     let {table, colors} = data;
-    //console.log(table);
     for (let y in table) {
         for (let x in table) {
             let id = parseInt(y)*table.length + parseInt(x);
@@ -113,7 +118,7 @@ socket.on("loadGameTable", data => {
             }
         }
     }
-    winnerMessage.style.display = "none";
+    winnerContainer.style.display = "none";
 });
 
 socket.on("newView", data => {
@@ -147,16 +152,15 @@ socket.on("justPlayed", data => {
     displayWhoseTurn(coin+1);
 });
 
-//implement
 socket.on("winner", data => {
-    winnerMessage.innerHTML = `${data["winner"]} IS THE WINNER!!!`;
-    winnerMessage.style.color = data["color"];
-    winnerMessage.style.display = "block";
+    document.getElementsByTagName("p")[0].innerHTML = `${data["winner"]} IS THE WINNER!!!`;
+    winnerMessage.className = "winner" + data["playerNb"];
+    greyOut.style.display = "flex";
+    winnerContainer.style.display = "flex";
     console.log(data);
 });
 
 sendMes.setAttribute("disabled", "disabled");
-// chat.value = ""; // erases the chat on reload / new tab
 
 
 // So that hitting Enter in input field automatically presses the button

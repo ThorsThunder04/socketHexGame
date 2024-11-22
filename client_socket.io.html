@@ -31,24 +31,23 @@
    </header>
    <hr/>
 
+   <div id="spectatorButtons">
+      <button id="bStart" onclick="spectStart()">start</button>
+      <button id="bBack" onclick="spectStepBack()">back</button>
+      <button id="bForward" onclick="spectStepForward()">forward</button>
+      <button id="bLive" onclick="spectLive()">follow game</button>
+   </div>
+
    <div id="bodyGridContainer">
-      <div id="spectatorButtons">
-         <button id="bStart" onclick="spectStart()">start</button>
-         <button id="bBack" onclick="spectStepBack()">back</button>
-         <button id="bForward" onclick="spectStepForward()">forward</button>
-         <button id="bLive" onclick="spectLive()">follow game</button>
-      </div>
-      
       <div id="field"></div>
 
       <div id="chatElements">
          <input type="text" id="inputMes">
          <button id="sendMes" onclick="send()">Send!</button>
-         <!-- <div><textarea id="chat" rows="30" cols="40" style="resize:none" readonly></textarea></div> -->
          <div id="chatbox">
 
             <!--* these are example messages for testing css -->
-            <div class="chatMessage userMsg">
+            <div class="chatMessage sysMsg">
                <span class="chatUsername">Fish:</span> <div id="m1">Hello opiwef fjjj we  eee there sir bwabwabwa</div>
             </div>
             <div class="chatMessage userMsg dimmedMsg">
@@ -58,7 +57,14 @@
       </div>
    </div>
    
-   <div id="winnerMessage"></div>
+   <div id="winnerContainer">
+      <div id="winnerMessage">
+         <p></p>
+         <button id="newGame" onclick="resetGame()">new game</button>
+      </div> 
+   </div>
+
+   <div id="greyOut"></div>
 
 </body>
 

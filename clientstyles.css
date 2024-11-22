@@ -1,5 +1,7 @@
 :root{
     --magenta: rgb(172, 11, 172);
+    --teal-shadow: rgba(13, 153, 164, 0.6);
+    --magenta-shadow: rgba(204, 9, 204, 0.6);
 }
 
 html {
@@ -78,22 +80,40 @@ button {
 }
 
 #bodyGridContainer {
-    width: 100%;
     display: grid;
-    grid-template-columns: 25% 50% 25%;
+    grid-template-columns: 75% 25%;
+    position: absolute;
+    height: 100%;
+    width: 100%;
 }
 
-#field {
+/* #field {
     top: 20px;
     width: 100%;
-    grid-column: 2;
+    grid-column: 1;
+}
+
+svg {
+    position: absolute;
+    left: 10%;
+} */
+
+#field {
+    grid-column: 1;
+    position: relative;
+}
+
+svg {
+    position: absolute;
+    left: 0;
+    top: 0;
 }
 
 /* The parent div of everything chat related */
 #chatElements {
-    grid-column: 3;
-    /* justify-self: right; */
-    /* width: 30%; */
+    grid-column: 2;
+    display: flow-root;
+    height: 70%;
 }
 
 #inputMes {
@@ -104,7 +124,7 @@ button {
 #chatbox {
     margin-top: 5px;
     width: 95%;
-    height: 30em;
+    height: 100%;
     overflow: scroll;
 }
 
@@ -128,7 +148,8 @@ button {
     background-color: #293c3c;
 }
 .sysMsg {
-    background-color: rgb(242, 192, 12);
+    background-color: rgb(181, 158, 75);
+    color: #37332c;
 }
 .joinMsg {
     background-color: #346868;
@@ -142,13 +163,59 @@ button {
     filter: brightness(85%);
 }
 
+#winnerContainer {
+    display: none;
+    position: absolute;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    top: 30%;
+    z-index: 100;
+}
 
 #winnerMessage {
-    display: none;
-    z-index: 1;
+    display: grid;
     position: absolute;
-    margin-top: 25%;
-    background-color: black;
+    height: fit-content;
+    width: fit-content;
+    align-content: center;
+    justify-items: center;
+    overflow-wrap: anywhere;
+    padding: 1% 2% 3% 2%;
+    border-radius: 5px;
     color: white;
     font-size: 20pt;
+}
+
+/* style for winnerMessage if player 0 wins */
+.winner0 {
+    background-color: #105358;
+    box-shadow: 0 3px 20px var(--magenta-shadow),
+                0 -3px 20px var(--magenta-shadow),
+                3px 0 20px var(--magenta-shadow),
+                -3px 0 20px var(--magenta-shadow);
+}
+
+/* style for winnerMessage if player 1 wins */
+.winner1 {
+    background-color: rgb(153, 9, 153);
+    box-shadow: 0 3px 20px var(--teal-shadow),
+                0 -3px 20px var(--teal-shadow),
+                3px 0 20px var(--teal-shadow),
+                -3px 0 20px var(--teal-shadow);
+}
+
+.winner1 > button {
+    background-color: #105358;
+    color: #e9f9fb;
+}
+
+#greyOut {
+    background-color: #202631bd;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    display: none;
+    top: 0%;
+    z-index: 50;
 }

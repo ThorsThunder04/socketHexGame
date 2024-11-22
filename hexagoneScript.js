@@ -42,7 +42,7 @@ function placeShape(d, color) {
 function genereDamier(nbLignes, nbColonnes, colors) {
 
    let width = 2*RAYON*nbColonnes + RAYON*(nbLignes-1) + 2*RAYON;
-   let height = 2*RAYON*nbLignes + 2*RAYON;
+   let height = 2*RAYON*nbLignes;
 
    d3.select("#field")
       .append("svg")
