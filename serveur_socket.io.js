@@ -245,8 +245,10 @@ io.on("connection", (socket) => {
     });
 
     socket.on("sentMessage", msgContent => {
-        let username = joinedUsers[socketList.indexOf(socket.id)];
-        sendChat(msgContent, "userMsg", username);
+        if (socketList.includes(socket.id)) {
+            let username = joinedUsers[socketList.indexOf(socket.id)];
+            sendChat(msgContent, "userMsg", username);
+        }
     });
 
 
