@@ -26,7 +26,7 @@ let nbJoueurs = 2;
 let numChats = 0;
 let hasWinner = false;
 let coin = 0;
-const wh = 3;
+const wh = 6;
 const colors = ["teal", "rgb(189 8 189)"];
 let history = []; // of form [[y*wh + x, color],...]
 let gameTable = [];
@@ -95,11 +95,12 @@ function filterIndexErr(pos, relativePositions, dims) {
  * @param {Number[]} root: (y,x) position of the tile placed by player in arr
  * @param {Number} player: player number of who just played on the root tile
  *
- * @returns {Boolean} if the root makes a connections between two opposite of the grid (vertical or horizontal, depending on player)
-*/
+ * @returns {Array<boolean,Array<Number>>} return boolean of if someone has connected two sides of the grid, and also return an array of tile numbers that connect those two sides
+ */
 function dfs(arr, dims, root, player) {
 	let toParse = [];
 	let seen = [];
+    let parents = {}; // for each node, we have the form {node: parentNode} (The root's parent is it's self)
 	let relativeTPos = [
 		[-1,0], [-1,1],
 		[0,-1], [0,1],
@@ -107,7 +108,9 @@ function dfs(arr, dims, root, player) {
 	];
 
 	toParse.push(root);
-	seen.push(pos2n(root[1], root[0], dims));
+    let rootN = pos2n(root[1], root[0], dims);
+	seen.push(rootN);
+    parents[rootN] = rootN;
 
 	while (toParse.length > 0) {
 		let node = toParse.pop();
@@ -123,21 +126,49 @@ function dfs(arr, dims, root, player) {
 
 				if (arr[y][x] == player && !seen.includes(n)) {
 					seen.push(n); // because we can't compare [x,y], but can compare numbers (y*dims + x)
+                    parents[n] = pos2n(node[1], node[0], dims); // log it's parent
 					toParse.push([y,x]);
 				}
 			}
 		}
 	}
     let side1, side2;
+    let side1Tile, side2Tile;
     // * player will always be either 0 or 1
     if (player == 0) { // win condition for player 0 (top and bottom)
-        side1 = seen.some((e) => {return Math.floor(e/dims) == 0;});
-        side2 = seen.some((e) => {return Math.floor(e/dims) == dims-1;});
+        side1 = seen.some((e) => {
+            let res = Math.floor(e/dims) == 0; 
+            if (res) side1Tile = e; // allows us to backtrack to the root (same thing for the next 3 seen.some(...) statements too)
+            return res;});
+        side2 = seen.some((e) => {
+            let res = Math.floor(e/dims) == dims-1;
+            if (res) side2Tile = e;
+            return res;});
     } else if (player == 1) { // win condition for player 1 (left and right)
-        side1 = seen.some((e) => {return e%dims == 0;});
-        side2 = seen.some((e) => {return e%dims == dims-1;});
+        side1 = seen.some((e) => {
+            let res = e%dims == 0;
+            if (res) side1Tile = e;
+            return res;});
+        side2 = seen.some((e) => {
+            let res = e%dims == dims-1;
+            if (res) side2Tile = e;
+            return res;});
     }
-    return (side1 && side2);
+    // fill array with the tiles that make up the winning path
+    let winningPath = [rootN];
+    if (side1 && side2) { // collect all tiles leading from each side to the root (effecively making a path from one side to the other)
+        let curr = side1Tile;
+        while (curr!=rootN) {
+            winningPath.push(curr);
+            curr = parents[curr];
+        }
+        curr = side2Tile;
+        while (curr!=rootN) {
+            winningPath.push(curr);
+            curr = parents[curr];
+        }
+    }
+    return [(side1 && side2), winningPath];
 }
 
 /**
@@ -256,6 +287,7 @@ io.on("connection", (socket) => {
 
     socket.on("selectionHexagon", async function(data) {
         let tile = data;
+        let winningPath = [];
 
         if (!hasWinner 
             && socketList.includes(socket.id)
@@ -279,23 +311,24 @@ io.on("connection", (socket) => {
                 gameTable[yT][xT] = coin%2;
                 
                 // check if there is a winner using the depth first search algorithm
-                if (dfs(gameTable, wh, [yT, xT], coin%2)) {
+                let [winnerRes, pathRes] = dfs(gameTable, wh, [yT, xT], coin%2); 
+                if (winnerRes) {
                     hasWinner = true;
+                    for (tile of pathRes) { // prefixes an h to all tile numbers (so that it matches the id format)
+                        winningPath.push("h" + tile);
+                    }
                 } else {
                     coin++;
                 }
             }                 
         }
 
-        //! testing css
-        testPath = ["h3", "h4", "h5"];
-
         if (hasWinner) {
             let w = coin%2;
             io.emit("winner", {
                 "winner": joinedUsers[w],
                 "playerNb": w,
-                "path": testPath}); //! testPath to be replaced with the winning path 
+                "path": winningPath});
 
             sendChat(joinedUsers[w] + " IS THE WINNER!!!", "sys-msg");
         }
