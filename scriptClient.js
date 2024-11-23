@@ -130,10 +130,10 @@ socket.on("newView", data => {
 
 socket.on("newMessage", data => {
     let [ msgContent, msgType, msgIDNum, msgUser] = data; 
-    let dim = (msgIDNum%2 != 0) ? "dimmedMsg" : ""; // dim if message has odd number ID
-    let preparedMessage = `<div class="chatMessage ${msgType} ${dim}">`;
-    if (msgType == "userMsg" && msgUser != undefined) {
-        preparedMessage += `<span class="chatUsername">${msgUser}</span>`;
+    let dim = (msgIDNum%2 != 0) ? "dimmed-msg" : ""; // dim if message has odd number ID
+    let preparedMessage = `<div class="chat-message ${msgType} ${dim}">`;
+    if (msgType == "user-msg" && msgUser != undefined) {
+        preparedMessage += `<span class="chat-username">${msgUser}</span>`;
     }
     let messageID = "m" + msgIDNum;
     preparedMessage += `<div id="${messageID}"></div></div>`;
@@ -154,7 +154,7 @@ socket.on("justPlayed", data => {
 
 socket.on("winner", data => {
     document.getElementsByTagName("p")[0].innerHTML = `${data["winner"]} IS THE WINNER!!!`;
-    winnerMessage.className = "winner" + data["playerNb"];
+    winnerMessage.className = "winner-" + data["playerNb"];
     greyOut.style.display = "flex";
     winnerContainer.style.display = "flex";
     console.log(data);

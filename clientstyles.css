@@ -129,7 +129,7 @@ svg {
 }
 
 /* The div that the contents of a single message is in */
-.chatMessage {
+.chat-message {
     width: auto;
     height: auto;
     border-width: 1px;
@@ -137,29 +137,29 @@ svg {
     overflow-wrap: break-word;
 }
 /* Just style for a player's username */
-.chatUsername {
+.chat-username {
     text-decoration: solid underline;
     font-weight: bold;
     padding-right: 0.25ch;
 }
 
 /* different styles for types of messages */
-.userMsg {
+.user-msg {
     background-color: #293c3c;
 }
-.sysMsg {
+.sys-msg {
     background-color: rgb(181, 158, 75);
     color: #37332c;
 }
-.joinMsg {
+.join-msg {
     background-color: #346868;
-    color: white;
+    color: #c3dde1;
 }
-.leaveMsg {
+.leave-msg {
     background-color: #772f77;
     color: white;
 }
-.dimmedMsg {
+.dimmed-msg {
     filter: brightness(85%);
 }
 
@@ -188,7 +188,7 @@ svg {
 }
 
 /* style for winnerMessage if player 0 wins */
-.winner0 {
+.winner-0 {
     background-color: #105358;
     box-shadow: 0 3px 20px var(--magenta-shadow),
                 0 -3px 20px var(--magenta-shadow),
@@ -197,7 +197,7 @@ svg {
 }
 
 /* style for winnerMessage if player 1 wins */
-.winner1 {
+.winner-1 {
     background-color: rgb(153, 9, 153);
     box-shadow: 0 3px 20px var(--teal-shadow),
                 0 -3px 20px var(--teal-shadow),
@@ -205,7 +205,7 @@ svg {
                 -3px 0 20px var(--teal-shadow);
 }
 
-.winner1 > button {
+.winner-1 > button {
     background-color: #105358;
     color: #e9f9fb;
 }

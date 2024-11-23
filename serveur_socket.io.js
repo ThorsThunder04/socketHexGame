@@ -173,7 +173,7 @@ function resetGame() {
 
 function leaving(socketID) {
     let index = socketList.indexOf(socketID);
-    sendChat(joinedUsers[index] + " left the party :(", "leaveMsg");
+    sendChat(joinedUsers[index] + " left the party :(", "leave-msg");
     joinedUsers.splice(index, 1);
     socketList.splice(index, 1);
     io.emit("currentPlayers", joinedUsers);
@@ -219,7 +219,7 @@ io.on("connection", (socket) => {
             // auxiliary function to avoid an error caused by asynchronicity
             await socket.timeout(1000).emitWithAck("waiting");
             socket.emit("joinSuccess", [data, joinedUsers.length-1]); // username
-            sendChat(data + " joined the party!", "joinMsg");
+            sendChat(data + " joined the party!", "join-msg");
 
             // we want to reset the previous game once a new player joins to play
             if (coin > 0) {
@@ -247,7 +247,7 @@ io.on("connection", (socket) => {
     socket.on("sentMessage", msgContent => {
         if (socketList.includes(socket.id)) {
             let username = joinedUsers[socketList.indexOf(socket.id)];
-            sendChat(msgContent, "userMsg", username);
+            sendChat(msgContent, "user-msg", username);
         }
     });
 
@@ -291,7 +291,7 @@ io.on("connection", (socket) => {
                 "winner": joinedUsers[w],
                 "playerNb": w}); 
 
-            sendChat(joinedUsers[w] + " IS THE WINNER!!!", "sysMsg");
+            sendChat(joinedUsers[w] + " IS THE WINNER!!!", "sys-msg");
         }
     });
 
