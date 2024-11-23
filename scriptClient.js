@@ -153,11 +153,20 @@ socket.on("justPlayed", data => {
 });
 
 socket.on("winner", data => {
-    document.getElementsByTagName("p")[0].innerHTML = `${data["winner"]} IS THE WINNER!!!`;
-    winnerMessage.className = "winner-" + data["playerNb"];
-    greyOut.style.display = "flex";
-    winnerContainer.style.display = "flex";
-    console.log(data);
+    document.documentElement.style.setProperty("--winner-color", COLORS[data["playerNb"]]);
+    for (let tile of data["path"]) 
+        document.getElementById(tile).classList.add("winning-path");
+    
+    setTimeout(() => {
+        for (tile of data["path"])
+            document.getElementById(tile).classList.remove("winning-path");
+    
+        document.getElementsByTagName("p")[0].innerHTML = `${data["winner"]} IS THE WINNER!!!`;
+        winnerMessage.className = "winner-" + data["playerNb"];
+        greyOut.style.display = "flex";
+        winnerContainer.style.display = "flex";
+        console.log(data);
+    }, 3000)
 });
 
 sendMes.setAttribute("disabled", "disabled");

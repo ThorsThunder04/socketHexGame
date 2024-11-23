@@ -285,11 +285,15 @@ io.on("connection", (socket) => {
             }                 
         }
 
+        //! testing css
+        testPath = ["h3", "h4", "h5"];
+
         if (hasWinner) {
             let w = coin%2;
             io.emit("winner", {
                 "winner": joinedUsers[w],
-                "playerNb": w}); 
+                "playerNb": w,
+                "path": testPath}); //! testPath to be replaced with the winning path 
 
             sendChat(joinedUsers[w] + " IS THE WINNER!!!", "sys-msg");
         }
