@@ -149,8 +149,10 @@ function dfs(arr, dims, root, player) {
  */
 function sendChat(content, type, user = undefined) { 
     //? Would there be any reason for us to maybe add an option to send a message to an individual client?
-    io.emit("newMessage", [content, type, numChats, user]);
-    numChats++;
+    if (!(type=="userMsg" && content.trim()=="")) {
+        io.emit("newMessage", [content, type, numChats, user]);
+        numChats++;
+    }
 }
 
 function resetGame() {

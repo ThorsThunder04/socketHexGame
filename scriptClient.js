@@ -30,6 +30,10 @@ function leave() {
 function send() {
     let message = inputMes.value + "\n";
     inputMes.value = "";
+    if (message.trim() == "") {
+        console.log("Chat Message must not be empty/just whitespace!");
+        return;
+    }
     socket.emit("sentMessage", message);
 }
 
