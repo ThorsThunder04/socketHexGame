@@ -91,7 +91,7 @@ function filterIndexErr(pos, relativePositions, dims) {
  * @param {Number[]} root: (y,x) position of the tile placed by player in arr
  * @param {Number} player: player number of who just played on the root tile
  *
- * @returns {Array<boolean,Array<Number>>} return boolean of if someone has connected two sides of the grid, and also return an array of tile numbers that connect those two sides
+ * @returns {Array<boolean,Array<String>>} return boolean of whether someone has connected two sides of the grid, and also return an array of tile IDs that connect those two sides
  */
 function dfs(arr, dims, root, player) {
 	let toParse = [];
@@ -151,16 +151,16 @@ function dfs(arr, dims, root, player) {
             return res;});
     }
     // fill array with the tiles that make up the winning path
-    let winningPath = [rootN];
+    let winningPath = ['h' + rootN];
     if (side1 && side2) { // collect all tiles leading from each side to the root (effecively making a path from one side to the other)
         let curr = side1Tile;
         while (curr!=rootN) {
-            winningPath.push(curr);
+            winningPath.push('h' + curr);
             curr = parents[curr];
         }
         curr = side2Tile;
         while (curr!=rootN) {
-            winningPath.push(curr);
+            winningPath.push('h' + curr);
             curr = parents[curr];
         }
     }
@@ -310,9 +310,7 @@ io.on("connection", (socket) => {
                 let [winnerRes, pathRes] = dfs(gameTable, wh, [yT, xT], coin%2); 
                 if (winnerRes) {
                     hasWinner = true;
-                    for (tile of pathRes) { // prefixes an h to all tile numbers (so that it matches the id format)
-                        winningPath.push("h" + tile);
-                    }
+                    winningPath = pathRes;
                 } else {
                     coin++;
                 }
