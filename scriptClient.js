@@ -8,22 +8,18 @@ const INIT_COLOR_HEX = "#293c3c"; // color of the hexagon tile at the start of t
 function join() {
     // check to avoid whitespace/empty username (is also checked server side)
     if (nick.value.trim() == "") {
-        console.log("Must give none whitespace username to join the game");
+        alert("Must give none whitespace username to join the game");
         return;
     }
-    console.log(nick.value + " joining the the party");
     socket.emit("newPlayer", nick.value);
 }
 
 function leave() {
-    console.log("leaving the party");
-
     playerList.innerHTML = "";
     sendMes.setAttribute("disabled", "disabled");
     inParty.style.display = "none";
     joinDiv.style.display = "block";
     spectatorButtons.style.display = "block";
-
     socket.emit("playerLeave");
 }
 
@@ -31,7 +27,7 @@ function send() {
     let message = inputMes.value + "\n";
     inputMes.value = "";
     if (message.trim() == "") {
-        console.log("Chat Message must not be empty/just whitespace!");
+        alert("Chat Message must not be empty/just whitespace!");
         return;
     }
     socket.emit("sentMessage", message);
@@ -52,14 +48,11 @@ function spectLive() {
 
 // displays a message saying whose turn it is depending on the coin's value
 function displayWhoseTurn(coin) {
-    if (coin != 0) {
-        document.getElementById("PN" + ((coin-1)%2)).innerHTML = "";
-    }
-    let next = document.getElementById("PN" + (coin%2));
-    // TODO make the whole name + arrows light up 
-    // currently cant do it bc of the same issue as in the closest comment down
-    next.innerHTML = ">>"
-    next.style.color = COLORS[coin%2];
+    let previous = document.getElementById("PN" + ( (Math.abs(coin-1)) %2 ));
+    if (previous) {
+        previous.innerHTML = "";
+    } 
+    document.getElementById("PN" + (coin%2)).innerHTML = ">>"
 }
 
 function resetGame() {
@@ -72,7 +65,6 @@ socket.on("waiting", (callback) => {
 
 socket.on("currentPlayers", data => {
     playerList.innerHTML = "Current players:<br/>";
-    console.log(data);
     for (let c in data) {
 
         // place username into field where it will be displayed
@@ -95,13 +87,12 @@ socket.on("joinSuccess", data => {
     // set html element displaying to the user their username and color
     playerName.style.color = COLORS[colorIndex];
     playerName.innerHTML = "Hello, " + currUsername;
-    inParty.style.display = "block";
+    inParty.style.display = "grid";
     joinDiv.style.display = "none";
 });
 
 socket.on("joinFailed", data => {
     alert("Couldn't join. " + data);
-    console.log(data);
 });
 
 socket.on("loadGameTable", data => {
@@ -109,6 +100,7 @@ socket.on("loadGameTable", data => {
     if (winnerContainer.style.display == "flex") {
         winnerContainer.style.display == "none";
         greyOut.style.display = "none";
+        displayWhoseTurn(0); // to reset the turn indicator
     }
 
     let {table, colors} = data;
@@ -161,6 +153,7 @@ socket.on("winner", data => {
     for (let tile of data["path"]) 
         document.getElementById(tile).classList.add("winning-path");
     
+    // gives times for the winning path to be highlighted
     setTimeout(() => {
         for (tile of data["path"])
             document.getElementById(tile).classList.remove("winning-path");
@@ -169,7 +162,6 @@ socket.on("winner", data => {
         winnerMessage.className = "winner-" + data["playerNb"];
         greyOut.style.display = "flex";
         winnerContainer.style.display = "flex";
-        console.log(data);
     }, 3000)
 });
 

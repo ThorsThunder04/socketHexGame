@@ -1,7 +1,3 @@
-/* TODO (ema)
-- make long name not break the inParty div
-*/
-
 const express = require('express');
 const app = express();
 const http = require('http');
@@ -207,6 +203,7 @@ function resetGame() {
 function leaving(socketID) {
     let index = socketList.indexOf(socketID);
     sendChat(joinedUsers[index] + " left the party :(", "leave-msg");
+    console.log(joinedUsers[index] + " LEFT!");
     joinedUsers.splice(index, 1);
     socketList.splice(index, 1);
     io.emit("currentPlayers", joinedUsers);
@@ -297,7 +294,6 @@ io.on("connection", (socket) => {
             let yT = Math.floor(tile/wh);
             let xT = tile%wh;
             if (gameTable[yT][xT] == -1) {
-                //console.log(tile);
                 history.push([tile, colors[coin%2]]);
                 io.except("timeOut").emit("justPlayed", {"tile":tile, "coin":coin});
                 
