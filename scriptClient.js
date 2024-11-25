@@ -2,7 +2,7 @@ let socket = io();
 
 let COLORS; // gets the colors from hexagoneScript.js createTable socket call
 let currUsername; // username string
-let colorIndex; // which color the player is (if they are a player)
+let colorIndex = -1; // which color the player is (if they are a player)
 const INIT_COLOR_HEX = "#293c3c"; // color of the hexagon tile at the start of the game
 
 function join() {
@@ -20,13 +20,14 @@ function leave() {
     inParty.style.display = "none";
     joinDiv.style.display = "block";
     spectatorButtons.style.display = "block";
+    colorIndex = -1;
     socket.emit("playerLeave");
 }
 
 function send() {
     let message = inputMes.value + "\n";
     inputMes.value = "";
-    if (message.trim() == "") {
+    if (message.trim() == "" && colorIndex != -1) {
         alert("Chat Message must not be empty/just whitespace!");
         return;
     }
