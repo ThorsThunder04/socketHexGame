@@ -258,6 +258,11 @@ io.on("connection", (socket) => {
             if (coin > 0) {
                 resetGame();
             }
+            if (joinedUsers.length == 2) {
+                sendChat(
+                    "Game started. It's " + joinedUsers[0] + "'s turn!",
+                    "sys-msg");
+            }
         }
     });
 

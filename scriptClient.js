@@ -156,6 +156,11 @@ socket.on("winner", data => {
     
     // gives times for the winning path to be highlighted
     setTimeout(() => {
+        if (colorIndex == -1) { // if the client is a specator, they wont see the newGame button
+            newGame.style.display = "none";
+        } else {
+            newGame.style.display = "inline";
+        }
         for (tile of data["path"])
             document.getElementById(tile).classList.remove("winning-path");
     

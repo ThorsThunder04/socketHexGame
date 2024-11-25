@@ -72,14 +72,11 @@ button {
     grid-area: 1 / 1 / 2 / 3;
     text-align: right;
 }
-#inParty > button {
+#leaveBut {
     margin: 5px 0 5px 5px;
     width: max-content;
     grid-row: 2;
     grid-column: 2;
-}
-
-#leaveBut {
     justify-self: right;
 }
 
@@ -152,6 +149,7 @@ svg {
 .sys-msg {
     background-color: rgb(181, 158, 75);
     color: #37332c;
+    font-weight: bold;
 }
 .join-msg {
     background-color: #346868;
@@ -167,11 +165,10 @@ svg {
 
 #winnerContainer {
     display: none;
-    position: absolute;
+    position: fixed;
     justify-content: center;
     width: 100%;
     height: 100%;
-    top: 30%;
     z-index: 100;
 }
 
@@ -216,7 +213,7 @@ svg {
     background-color: #202631bd;
     width: 100%;
     height: 100%;
-    position: absolute;
+    position: fixed;
     display: none;
     top: 0%;
     z-index: 50;
