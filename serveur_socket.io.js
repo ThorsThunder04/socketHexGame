@@ -239,6 +239,9 @@ io.on("connection", (socket) => {
             socket.emit("joinFailed", "Username can't be composed of just whitespace");
         } else if (data.length > 24) {
             socket.emit("joinFailed", "Username can't be longer than 24 characters")
+        } else if ([">", "<", "\"", "'"].some(v => data.includes(v))) {
+            socket.emit("joinFailed", "Username can not contain the following characters: > < \" '");
+
         } else {
             delete spectatorStates[socket.id];
             socketList.push(socket.id);
