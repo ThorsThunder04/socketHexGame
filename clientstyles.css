@@ -89,6 +89,10 @@ button {
     display: inline;
 }
 
+br + button {
+    margin-top: 10px;
+}
+
 #bodyGridContainer {
     display: grid;
     grid-template-columns: 75% 25%;
