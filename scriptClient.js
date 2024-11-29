@@ -150,6 +150,8 @@ socket.on("justPlayed", data => {
 });
 
 socket.on("winner", data => {
+    // changes the css variable --winner-color to the color of the winner,
+    // used in the path animation at the end
     document.documentElement.style.setProperty("--winner-color", COLORS[data["playerNb"]]);
     for (let tile of data["path"]) 
         document.getElementById(tile).classList.add("winning-path");
