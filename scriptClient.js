@@ -123,9 +123,9 @@ socket.on("loadGameTable", data => {
         for (let x in table) {
             let id = parseInt(y)*table.length + parseInt(x);
             if (table[y][x] !== -1) {
-                d3.select("#h" + id).attr("fill", colors[table[y][x]]);
+                d3.select("#h" + id).attr("fill", colors[table[y][x]]).attr("class", "");
             } else {
-                d3.select("#h" + id).attr("fill", INIT_COLOR_HEX);
+                d3.select("#h" + id).attr("fill", INIT_COLOR_HEX).attr("class", "tile-highlight");
             }
         }
     }
@@ -159,7 +159,7 @@ socket.on("newMessage", data => {
 socket.on("justPlayed", data => {
     let {tile, coin} = data;
     coin = parseInt(coin);
-    d3.select("#h"+tile).attr("fill", COLORS[coin%2]);
+    d3.select("#h"+tile).attr("fill", COLORS[coin%2]).attr("class", "");
     displayWhoseTurn(coin+1);
 });
 

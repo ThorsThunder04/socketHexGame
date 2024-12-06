@@ -87,7 +87,7 @@ function genereDamier(nbLignes, nbColonnes, colors) {
 
          placeShape(d, INIT_COLOR_HEX) //defined in scriptClient.js
             .attr("id", "h"+(ligne*nbLignes+colonne))
-            //.attr("class", "hexagons")
+            .attr("class", "tile-highlight")
             .on("click", function(d) {
                let selectedID = d3.select(this).attr('id');
                

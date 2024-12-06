@@ -63,6 +63,10 @@ dialog {
     border-color: #ffffff7d;
 }
 
+.tile-highlight:hover {
+    filter: brightness(120%);    
+}
+
 #joinDiv {
     grid-column: 6 / 8;
     justify-self: right;
