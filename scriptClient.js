@@ -79,6 +79,8 @@ socket.on("currentPlayers", data => {
 });
 
 socket.on("joinSuccess", data => {
+    let newColor = false;
+    if (colorIndex != -1) newColor = true; // after other player left and someones color got changed
     [ currUsername, colorIndex ] = data;
 
     // disable/enable buttons so that a player can only click buttons they're supposed to
@@ -90,6 +92,18 @@ socket.on("joinSuccess", data => {
     playerName.innerHTML = "Hello, " + currUsername;
     inParty.style.display = "grid";
     joinDiv.style.display = "none";
+
+    // customize the dialog based on the color of the player
+    let dialogString = "Your " +(newColor?"new": "") +" color is "
+                        + (colorIndex === 0?"teal.":"magenta.");
+    dialogText.innerHTML = dialogString;
+    colorDialog.style.backgroundColor = (colorIndex === 0?"#085b5b":"#771277");
+    colorDialog.show();
+
+    setTimeout(() => {
+        colorDialog.close();
+    }, 3000);
+
 });
 
 socket.on("joinFailed", data => {
