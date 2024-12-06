@@ -65,6 +65,7 @@ dialog {
 
 .tile-highlight:hover {
     filter: brightness(120%);    
+    cursor: pointer;
 }
 
 #joinDiv {
