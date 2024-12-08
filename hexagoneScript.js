@@ -52,7 +52,7 @@ function genereDamier(nbLignes, nbColonnes, colors) {
 
    var hexagon = creeHexagon();
    // index guide: 0: top, 1: right, 2:bottom, 3:left
-   let borderLinePoints = [[],[],[],[]];
+   let borderLinePoints = [[],[],[],[]]; // contains lists of points for each line of each side
    for (var ligne=0; ligne < nbLignes; ligne++) {
       for (var colonne=0; colonne < nbColonnes; colonne++) {
 

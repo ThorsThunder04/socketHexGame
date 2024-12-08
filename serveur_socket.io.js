@@ -22,13 +22,13 @@ let nbJoueurs = 2;
 let numChats = 0;
 let hasWinner = false;
 let coin = 0;
-const wh = 6;
+const TABLE_SIZE = 11;
 const colors = ["teal", "rgb(189 8 189)"];
-let history = []; // of form [[y*wh + x, color],...]
+let history = []; // of form [[y*TABLE_SIZE + x, color],...]
 let gameTable = [];
-for (let i = 0; i < wh; i++) {
+for (let i = 0; i < TABLE_SIZE; i++) {
     let a = [];
-    for (let j = 0; j < wh; j++) {
+    for (let j = 0; j < TABLE_SIZE; j++) {
         a.push(-1);
     }
     gameTable.push(a);
@@ -189,7 +189,7 @@ function resetGame() {
     for (let sock of Object.keys(spectatorStates)) {
         spectatorStates[sock] = -1;
     }
-    gameTable = newGameTable(wh);
+    gameTable = newGameTable(TABLE_SIZE);
     history = [];
 
     // resets everyone's tables to be empty according to the server side gameTable
@@ -217,7 +217,7 @@ function leaving(socketID) {
 
 io.on("connection", (socket) => {
     
-    socket.emit("createTable", {size: wh, colors: colors});
+    socket.emit("createTable", {size: TABLE_SIZE, colors: colors});
     socket.emit("currentPlayers", joinedUsers);
     spectatorStates[socket.id] = history.length - 1;
 
@@ -299,8 +299,8 @@ io.on("connection", (socket) => {
             && socketList.indexOf(socket.id) === (coin % 2)
             && socketList.length == 2) {
 
-            let yT = Math.floor(tile/wh);
-            let xT = tile%wh;
+            let yT = Math.floor(tile/TABLE_SIZE);
+            let xT = tile%TABLE_SIZE;
             if (gameTable[yT][xT] == -1) {
                 history.push([tile, colors[coin%2]]);
                 io.except("timeOut").emit("justPlayed", {"tile":tile, "coin":coin});
@@ -315,7 +315,7 @@ io.on("connection", (socket) => {
                 gameTable[yT][xT] = coin%2;
                 
                 // check if there is a winner using the depth first search algorithm
-                let [winnerRes, pathRes] = dfs(gameTable, wh, [yT, xT], coin%2); 
+                let [winnerRes, pathRes] = dfs(gameTable, TABLE_SIZE, [yT, xT], coin%2); 
                 if (winnerRes) {
                     hasWinner = true;
                     winningPath = pathRes;
@@ -342,7 +342,7 @@ io.on("connection", (socket) => {
         switch(data) {
             case 0:
                 spectatorStates[socket.id] = -1;
-                freshTable = newGameTable(wh);
+                freshTable = newGameTable(TABLE_SIZE);
                 socket.join("timeOut");
 
                 socket.emit("loadGameTable", {

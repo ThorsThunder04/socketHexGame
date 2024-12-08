@@ -135,6 +135,7 @@ svg {
     grid-column: 2;
     display: flow-root;
     height: 70%;
+    overflow:hidden;
 }
 
 #inputMes {
@@ -182,7 +183,7 @@ svg {
     color: white;
 }
 .dimmed-msg {
-    filter: brightness(85%);
+    filter: brightness(90%);
 }
 
 #winnerContainer {
