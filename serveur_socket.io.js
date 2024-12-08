@@ -17,6 +17,7 @@ app.get("/file/:file", (req,res) => {
 let joinedUsers = [];
 let socketList = [];
 //form of spectatorStates: {socket.id: moveBeingViewed};
+//and moveBeingViewed: index of a move that's in history
 let spectatorStates = {};
 let nbJoueurs = 2;
 let numChats = 0;
@@ -97,7 +98,7 @@ function dfs(arr, dims, root, player) {
 	let toParse = [];
 	let seen = [];
     let parents = {}; // for each node, we have the form {node: parentNode} (The root's parent is it's self)
-	let relativeTPos = [
+	let relativeTPos = [ // relative positions of all hexagons around the current one
 		[-1,0], [-1,1],
 		[0,-1], [0,1],
 		[1,-1], [1,0],
@@ -295,9 +296,9 @@ io.on("connection", (socket) => {
         let winningPath = [];
 
         if (!hasWinner 
-            && socketList.includes(socket.id)
-            && socketList.indexOf(socket.id) === (coin % 2)
-            && socketList.length == 2) {
+            && socketList.includes(socket.id)  // make sure it's a player
+            && socketList.indexOf(socket.id) === (coin % 2) // make sure it's that player's turn
+            && socketList.length == 2) { // make sure there are 2 players in game
 
             let yT = Math.floor(tile/TABLE_SIZE);
             let xT = tile%TABLE_SIZE;
@@ -305,10 +306,13 @@ io.on("connection", (socket) => {
                 history.push([tile, colors[coin%2]]);
                 io.except("timeOut").emit("justPlayed", {"tile":tile, "coin":coin});
                 
+                // get all the socket IDs of spectators that are not following the game live
                 let timeOutClients = await io.in("timeOut").fetchSockets();
 
+                // for each spectator, if they are following the game live (aka, not in timedOut)
+                // Increment the move they are following by one so that they stay up to date
                 for (let sock of Object.keys(spectatorStates)) {
-                    if (!timeOutClients.some(s => s.id == sock))
+                    if (!timeOutClients.some(s => s.id == sock)) // if none of the timed out clients are the spectator sock
                         spectatorStates[sock]++;
                 }
                 
@@ -336,7 +340,7 @@ io.on("connection", (socket) => {
         }
     });
 
-//data: 0 (beginning) | 1 (step back) | 2 (step forward) | 3 (live)
+    //data: 0 (beginning) | 1 (step back) | 2 (step forward) | 3 (live)
     socket.on("changeView", data => {
         let lastMove = history.length - 1;
         switch(data) {
@@ -380,6 +384,7 @@ io.on("connection", (socket) => {
                 socket.emit("loadGameTable", {
                     "table": gameTable, 
                     "colors": colors});
+                break;
         }
     });
 
@@ -387,7 +392,7 @@ io.on("connection", (socket) => {
         // sets everything to defaults
 
         //TODO* in addition to reset at the end, maybe make it so that both players can vote wether to reset or not
-        // treats cases: the game is finished; someone left, and so reset for when someone else joins; a spectator is trying to reset
+        // treats cases: the game is finished; someone left, and so reset for when someone else joins; a spectator is trying to reset (which isn't allowed)
         if (joinedUsers.length == 2 && !hasWinner || Object.keys(spectatorStates).includes(socket.id)) return;
         resetGame();
 

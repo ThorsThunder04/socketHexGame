@@ -70,6 +70,7 @@ socket.on("currentPlayers", data => {
 
         // place username into field where it will be displayed
         //! Should idealy be revisited slightly to avoid XSS vulnerability (since data[c] is direct user input)
+        //! but due to other checks to the user's input, XSS would be pretty hard to do anyway
         if (document.getElementById(data[c]) == null) {
             playerList.innerHTML += (`<div id=${data[c]}><div id=${'PN'+c} class="arrows"></div> ${data[c]}</div>`);
             displayWhoseTurn(0); // both players are in the middle of joining, so the turn is still at 0
@@ -121,6 +122,7 @@ socket.on("loadGameTable", data => {
     let {table, colors} = data;
     for (let y in table) {
         for (let x in table) {
+            // sets the color for each hexagon individually because there could already be a game in session.
             let id = parseInt(y)*table.length + parseInt(x);
             if (table[y][x] !== -1) {
                 d3.select("#h" + id).attr("fill", colors[table[y][x]]).attr("class", "");
@@ -151,7 +153,6 @@ socket.on("newMessage", data => {
 
     // we separate these two so that there can't be an XSS attack where someone
     // sends code in through the chat box (which would be sent to every client, even spectators)
-    //TODO since new message appear at top, if you are scrolled down and someone sends a message, everything shifts down. See if we can cancel this shift when scrolled downwards
     chatbox.innerHTML = preparedMessage + chatbox.innerHTML; // new chats will always be at top
     document.getElementById(messageID).textContent = msgContent;
 });
