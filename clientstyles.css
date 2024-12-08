@@ -135,7 +135,6 @@ svg {
     grid-column: 2;
     display: flow-root;
     height: 70%;
-    overflow:hidden;
 }
 
 #inputMes {
@@ -148,6 +147,7 @@ svg {
     width: 95%;
     height: 100%;
     overflow: scroll;
+    max-height: calc(100vh - 40px);
 }
 
 /* The div that the contents of a single message is in */
