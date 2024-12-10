@@ -85,6 +85,7 @@ function genereDamier(nbLignes, nbColonnes, colors) {
          }
          d += "Z";
 
+         //* Placement d'un hexagone
          placeShape(d, INIT_COLOR_HEX) //defined in scriptClient.js
             .attr("id", "h"+(ligne*nbLignes+colonne))
             .attr("class", "tile-highlight")
@@ -116,12 +117,14 @@ function genereDamier(nbLignes, nbColonnes, colors) {
    // draw the coloured borders
    for (let b in borderLinePoints) { // for each border
 
+      // for each edge of an edge hexagon
       for (let i = 0; i < borderLinePoints[b].length-1; i++) { // get cordinates of point[x] and point[x+1]
          let [ x1, y1 ] = borderLinePoints[b][i];
          let [ x2, y2 ] = borderLinePoints[b][i+1];
 
          // make d string represending a line between point[x] and point[x+1]
          d = `M${x1},${y1} L${x2},${y2} Z`;
+         //* Placement d'un ligne = un coté d'un hexagon
          placeShape(d, "transparent").attr("stroke", colors[b%2]).attr("stroke-width", "3");
       }
    }

@@ -41,17 +41,19 @@
    </div>
 
    <div id="bodyGridContainer">
+      <!-- Contains the hex table -->
       <div id="field"></div>
 
       <div id="chatElements">
          <input type="text" id="inputMes">
          <button id="sendMes" onclick="send()">Send!</button>
 
-         <div id="chatbox">
-         </div>
+         <!-- Where the chat messages appear -->
+         <div id="chatbox"></div>
       </div>
    </div>
 
+   <!-- Pop up that tells the player who the winner is -->
    <div id="winnerContainer">
       <div id="winnerMessage">
          <p></p>
@@ -61,12 +63,13 @@
 
    <div id="greyOut"></div>
 
+   <!-- Pop up that tells player which color they are  -->
    <dialog id="colorDialog">
       <p id="dialogText"></p>
       <form method="dialog">
          <button>OK</button>
       </form>
-   </dialog
+   </dialog>
 
 </body>
 

@@ -69,7 +69,7 @@ socket.on("currentPlayers", data => {
     for (let c in data) {
 
         // place username into field where it will be displayed
-        //! Should idealy be revisited slightly to avoid XSS vulnerability (since data[c] is direct user input)
+        //! Should idealy be revisited slightly to avoid XSS vulnerability (since data[c] is direct user input, their username)
         //! but due to other checks to the user's input, XSS would be pretty hard to do anyway
         if (document.getElementById(data[c]) == null) {
             playerList.innerHTML += (`<div id=${data[c]}><div id=${'PN'+c} class="arrows"></div> ${data[c]}</div>`);
@@ -86,7 +86,7 @@ socket.on("joinSuccess", data => {
 
     // disable/enable buttons so that a player can only click buttons they're supposed to
     sendMes.removeAttribute("disabled");
-    spectatorButtons.style.display = "none"
+    spectatorButtons.style.display = "none";
 
     // set html element displaying to the user their username and color
     playerName.style.color = COLORS[colorIndex];

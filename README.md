@@ -1,11 +1,15 @@
 # socketHexGame
 
+Voici un implementation du Jeux De Hex ([Wiki](https://en.wikipedia.org/wiki/Hex_(board_game))) en utilisant Socket.io.js et Express.js avec Node.js
+
+
 ## Fonctionalités Principales
 
 ### Construction et affichage du tableau de hexagones
 
 - Utilisation de la squelette initiale
-- On dessine aussi des bordures colorés pour que les joueurs savent quels cotés ils doivent connecter (c'est un peut beaucoup de code additionelle juste pour ça)
+- On dessine egallement des bordures colorés pour que les joueurs savent quels cotés ils doivent connecter (c'est un peut beaucoup de code additionelle juste pour ça, mais c'est tres utile pour le joueur)
+- Quand on hover sur un hexagon vide, il s'eclerit un peut. Ce n'est pas le cas pour un hexagon placé.
 
 ### Entrée / Sortie des joueurs
 
@@ -43,6 +47,7 @@
   - Entrée en jeu: Couleur Teal
   - Sortie de jeu: Couleur Magenta
   - Système: Couleur jaune
+- Tout les messages enoyvé ne sont pas stocké sur le serveur. Donc si la page est refresh sur un client, les messages sont perdue pour ce client.
 
 ### Spectateurs
 
@@ -56,12 +61,23 @@
 - Il y a un tableau `history` qui contient tous les moves qu'il y a eu dans le jeu courant. Il est donc mis à jour chaque fois que quelqu'un place un hexagone.
 - Chaque spectateur peut individuellement regarder un point différent dans jeu. Ceci est fait avec `spectatorStates`, un dictionaire de la forme `{socket.id: moveDuJeu}` où `moveDuJeu` est un indice de `history`.
 - Si un spectateur ne suit pas le jeu en live, il est mis dans un room socket nommé "timeOut". Son jeu sera donc pas mis à jour chaque fois qu'un joueur place un hexagone.
+- Si un spectateur continue d'avancer dans le jeu justqu'a etre au meme move que le jeux live en cours, le spectateur est remis en mode "suite live" du jeux. 
 
 ## Fonctionalités additionelles
 
 - On peut appuyer sur entrer pour join le jeu / envoyer un message (pas obliger d'appuyer sur les bouttons).
 - On ne peut pas tricher en impersonnant l'autre joueur, car on verifie si le socket ID de l'utilisateur qui a cliqué sur un hexagone est bien le socket ID du joueur à qui est le tour.
+- On a aussi decidé de stocker la plus part des informations d'importance au coté server. Comme la couleur par exemple. Quand un joueur place un hexagon, il dit pas au serveur quel couleur il est, le serveur le sait deja. 
+- On a design un favicon pour le site
 
+<img src="favicon.ico" width="128">
+
+- La taille du grille d'hexagons change dependant du taille de la largeur de la fenetre, pour permettre de jouer au jeu sur un ecran plus etroit sans avoid besoin de scroll. On traite seulement la largeur de la fenetre ici, et pas la hauteur. Donc il faut scroll si l'ecran est trop "wide screen"
+- Certaines bouttons apparait et disparait dependant de votre etat. 
+  - Si vous etes joueur: Vous ne voyais pas les bouttons spectateurs
+  - Si vous etes Spectateur: le boutton "new game" a la fin d'un jeu n'apparait pas
+  - Le boutton "send" du chat ne disparrait jamais, meme si les spectateurs ne peuvent pas utiliser le chat. Mais le boutton est "disabled".
+ 
 
 ## Sources
 Title font: [Audiowide](https://fonts.google.com/specimen/Audiowide?preview.text=Hex%20game&categoryFilters=Appearance:%2FTheme%2FTechno&script=Latn)
