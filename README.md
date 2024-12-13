@@ -1,6 +1,6 @@
 # socketHexGame
 
-Voici un implémentation du Jeux De Hex ([Wiki](https://en.wikipedia.org/wiki/Hex_(board_game))) en utilisant Socket.io.js et Express.js avec Node.js
+Voici un implémentation du Jeu De Hex ([Wiki](https://en.wikipedia.org/wiki/Hex_(board_game))) en utilisant Socket.io.js et Express.js avec Node.js
 
 
 ## Fonctionnalités Principales
@@ -9,7 +9,7 @@ Voici un implémentation du Jeux De Hex ([Wiki](https://en.wikipedia.org/wiki/He
 
 - Utilisation de la squelette initiale
 - On dessine également des bordures colorés pour que les joueurs savent quels côtés ils doivent connecter (c'est un peu beaucoup de code additionnelle juste pour ça, mais c'est très utile pour le joueur)
-- Quand on hover sur un hexagon vide, il s'écrit un peu. Ce n'est pas le cas pour un hexagone placé.
+- Quand on hover sur un hexagone vide, il s'éclaircit un peu. Ce n'est pas le cas pour un hexagone placé.
 
 ### Entrée / Sortie des joueurs
 
@@ -27,19 +27,19 @@ Voici un implémentation du Jeux De Hex ([Wiki](https://en.wikipedia.org/wiki/He
 #### Sortie
 - Quand un joueur quitte le jeu, il est remis dans la liste des spectateurs.
 - Quand un joueur J1 quitte la site / refresh, il est automatiquement enlevé du jeu. L'autre joueur J2 reste dans le jeu et si un autre joueur J3 entre dans le jeu, le jeu se reset et les joueurs J2 et J3 peuvent jouer.
-- Quand un spectateur quitte la site / refresh, il est enlevé de la liste `spectatorStates` qui sert pour la gestion de différents états de jeu que voient les spectateurs.
+- Quand un spectateur quitte la site / refresh, il est enlevé du dictionnaire`spectatorStates` qui sert à la gestion de différents états de jeu que voient les spectateurs.
 - Si le joueur sortant était le premier à entrer, la couleur du deuxième joueur change à celle du premier (soit dans le code: sa position passe de 1 à 0). Un message apparaît pour informer le joueur de sa nouvelle couleur.
 
 ### Condition de fin du jeu
 
 - Chaque joueur doit connecter leurs deux côtés par une ligne de hexagones
-- Le tableau est représenté par un tableau de tableaux. 0 et 1 représentent les hexagones placés par les joueurs. -1 représente un hexagone vide.
+- Le tablier est représenté par un tableau de tableaux. 0 et 1 représentent les hexagones placés par les joueurs. -1 représente un hexagone vide.
 - Utilisation d'un algorithme de parcours en profondeur (nommé `dfs()`) à chaque tour d'un joueur.
 - Le chemin gagnant clignote quelques fois avant d'afficher un textbox pour rejouer.
 
 ### Messagerie
 
-- Re-Réécrit pour utiliser des divs au lieu de juste un seul textarea. Ce qui permet plus de stylisation et de lisibilité.
+- Réécrite pour utiliser des divs au lieu de juste un seul textarea. Ce qui permet plus de stylisation et de lisibilité.
 - Seulement les joueurs peuvent envoyer des messages. Donc les spectateurs ne peuvent pas utiliser le chat.
 - Les messages des joueurs sont préparés pour éviter du XSS dans le chat.
 - Il y a 4 types de messages:
@@ -65,17 +65,17 @@ Voici un implémentation du Jeux De Hex ([Wiki](https://en.wikipedia.org/wiki/He
 
 ## Fonctionnalités additionnelles
 
-- On peut appuyer sur entrer pour joindre le jeu / envoyer un message (pas obligé d'appuyer sur les boutons).
-- On ne peut pas tricher en impersonnalité l'autre joueur, car on vérifie si le socket ID de l'utilisateur qui a cliqué sur un hexagone est bien le socket ID du joueur à qui est le tour.
+- On peut appuyer sur entrée pour joindre le jeu / envoyer un message (pas obligé d'appuyer sur les boutons).
+- On ne peut pas tricher en se faisant passer pour un autre joueur, car on vérifie si le socket ID de l'utilisateur qui a cliqué sur un hexagone est bien le socket ID du joueur à qui est le tour.
 - On a aussi décidé de stocker la plupart des informations d'importance au côté serveur. Comme la couleur par exemple. Quand un joueur place un hexagone, il dit pas au serveur quelle couleur il est, le serveur le sait déjà.
 - On a design un favicon pour le site
 
 <img src="favicon.ico" width="128">
 
-- La taille du grille d'hexagons change dépendant du taille de la largeur de la fenêtre, pour permettre de jouer au jeu sur un écran plus étroit sans avoir besoin de scroll. On traite seulement la largeur de la fenêtre ici, et pas la hauteur. Donc il faut scroll si l'écran est trop "wide screen"
+- La taille du grille d'hexagons change dépendant de la taille de la largeur de la fenêtre, pour permettre de jouer au jeu sur un écran plus étroit sans avoir besoin de scroll. On traite seulement la largeur de la fenêtre ici, et pas la hauteur. Donc il faut scroll si l'écran est trop "wide screen"
 - Certains boutons apparait et disparait dépendant de votre état:
   - Si vous êtes joueur: Vous ne voyais pas les boutons spectateurs
-  - Si vous êtes Spectateur: le bouton "new game" a la fin d'un jeu n'apparait pas
+  - Si vous êtes spectateur: le bouton "new game" à la fin d'un jeu n'apparait pas
   - Le bouton "send" du chat ne disparaît jamais, même si les spectateurs ne peuvent pas utiliser le chat. Mais le bouton est "disabled".
  
 
