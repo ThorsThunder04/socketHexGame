@@ -3,6 +3,25 @@
 Voici un implémentation du Jeu De Hex ([Wiki](https://en.wikipedia.org/wiki/Hex_(board_game))) en utilisant Socket.io.js et Express.js avec Node.js
 
 
+## SETUP
+
+Il faut avoir node.js installee sur votre system.
+De plus sur node.js il vous faut les packages:
+- [express](https://expressjs.com/)
+- [socket.io](https://www.npmjs.com/package/socket.io)
+
+Les autres dependance du client comme socket.io.js et d3.js sont importé en utilisant un CDN (il faut donc un **connection a l'internet** pour lancer ce jeu)
+
+
+## Lancement
+
+Il suffit de se mettre dans le repertoire git du jeu et executer:
+```sh 
+node ./server_socket.io.js
+```
+Le jeu est ensuite accessible depuis http://localhost:8888/
+
+
 ## Fonctionnalités Principales
 
 ### Construction et affichage du tableau de hexagones
