@@ -116,7 +116,7 @@ br + button {
     grid-template-columns: 75% 25%;
     position: absolute;
     height: 100%;
-    width: 100%;
+    width: 99%;
 }
 
 #field {
