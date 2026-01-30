@@ -1,10 +1,10 @@
-const express = require('express');
+const express = require("express");
 const app = express();
 const http = require('http');
 const { relative } = require('path');
 const server = http.createServer(app);
 const io = new require("socket.io")(server);
-server.listen(8888, () => {console.log('Le serveur écoute sur le port 8888');});
+const PORT = 8888;
 
 app.get('/', (request, response) => {
     response.sendFile('client_socket.io.html', {root: __dirname});
@@ -397,4 +397,9 @@ io.on("connection", (socket) => {
         resetGame();
 
     });
+});
+
+server.listen(PORT, () => {
+    console.log("Server ecoute sur le port 8888");
+    console.log("Visiter jeux sur: http://localhost:8888/");
 });

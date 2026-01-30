@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+   <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+   <script src="file/scriptClient.js" defer></script>
+   <script src="file/hexagoneScript.js" defer></script>
+   <script src="https://d3js.org/d3.v7.min.js"></script>
+   <link rel="stylesheet" type="text/css" href="file/clientstyles.css">
+
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
+   <link rel="icon" type="image/x-con" href="file/favicon.ico">
+
+   <title>Hex</title>
+
+</head>
+
+<body>
+   <header>
+      <div id="playerList"></div>
+      <h1 id="gameName">Hex</h1>
+      <div id="joinDiv">
+         <input type="text" id="nick" maxlength="24">
+         <button id="joinBut" onclick="join()">join party!</button>
+      </div>
+      <div id="inParty">
+         <div id="playerName"></div>
+         <button id="leaveBut" onclick="leave()">leave :(</button>
+      </div>
+   </header>
+   <hr />
+
+   <div id="spectatorButtons">
+      Spectator controls:<br>
+      <button id="bStart" onclick="spectStart()">start</button>
+      <button id="bBack" onclick="spectStepBack()">back</button>
+      <button id="bForward" onclick="spectStepForward()">forward</button>
+      <button id="bLive" onclick="spectLive()">follow game</button>
+   </div>
+
+   <div id="bodyGridContainer">
+      <!-- Contains the hex table -->
+      <div id="field"></div>
+
+      <div id="chatElements">
+         <input type="text" id="inputMes">
+         <button id="sendMes" onclick="send()">Send!</button>
+
+         <!-- Where the chat messages appear -->
+         <div id="chatbox"></div>
+      </div>
+   </div>
+
+   <!-- Pop up that tells the player who the winner is -->
+   <div id="winnerContainer">
+      <div id="winnerMessage">
+         <p></p>
+         <button id="newGame" onclick="resetGame()">new game</button>
+      </div>
+   </div>
+
+   <div id="greyOut"></div>
+
+   <!-- Pop up that tells player which color they are  -->
+   <dialog id="colorDialog">
+      <p id="dialogText"></p>
+      <form method="dialog">
+         <button>OK</button>
+      </form>
+   </dialog>
+
+</body>
+
+</html>

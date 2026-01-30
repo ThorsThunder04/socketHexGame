@@ -1,0 +1,25 @@
+{
+  "name": "sockethexgame",
+  "version": "1.0.0",
+  "description": "SocketeIO based project for a webdev course implementing the Hex board game",
+  "homepage": "https://github.com/ThorsThunder04/socketHexGame#readme",
+  "bugs": {
+    "url": "https://github.com/ThorsThunder04/socketHexGame/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ThorsThunder04/socketHexGame.git"
+  },
+  "license": "GPL-3.0",
+  "author": "Thor & Ema",
+  "type": "commonjs",
+  "main": "./src/serveur_socket.io.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./src/serveur_socket.io.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "socket.io": "^4.8.3"
+  }
+}
